@@ -1,0 +1,9 @@
+.vs/
+*.suo
+*.user
+
+PublishProfiles/
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
