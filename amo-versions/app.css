@@ -24,9 +24,34 @@ header span.links {
 }
 
 header h1, header span.links {
-    padding: 8px;
+    padding: 10px;
 }
 
 #main {
-    margin: 8px;
+    margin: 10px;
+}
+
+#summary {
+    padding: 10px;
+    border: 1px solid gray;
+    background-color: #f0f0f0;
+}
+
+#summary:empty {
+    display: none;
+}
+
+#summary > :first-child {
+    margin-top: 0;
+}
+
+#summary > :last-child {
+    margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    #summary {
+        float: right;
+        max-width: 400px;
+    }
 }
