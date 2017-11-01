@@ -7,3 +7,6 @@ PublishProfiles/
 [Rr]elease/
 [Bb]in/
 [Oo]bj/
+
+*.js
+*.js.map
