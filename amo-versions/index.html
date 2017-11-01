@@ -30,7 +30,15 @@
         <h2><span data-bind="text: name"></span> Version History</h2>
 
         <!-- ko foreach: versions -->
-        <div data-bind="text: id"></div>
+        <div class="version">
+            <div class="version-header">
+                Version
+                <span data-bind="text: version"></span>
+            </div>
+            <div class="released" data-bind="text: getReleasedStr($data)"></div>
+            <div class="compatibility" data-bind="text: getCompatiblityStr($data)"></div>
+            <div class="release_notes" data-bind="html: getReleaseNotes($data)"></div>
+        </div>
         <!-- /ko -->
 
         <div id="content"></div>

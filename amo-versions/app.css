@@ -53,5 +53,27 @@ header h1, header span.links {
     #summary {
         float: right;
         max-width: 400px;
+        outline: 10px solid white;
     }
+}
+
+.version {
+    border-top: 1px dotted gray;
+    padding: 10px;
+}
+
+.version-header {
+    font-size: 125%;
+    font-weight: bold;
+}
+
+.released, .compatibility {
+    color: gray;
+    font-size: 70%;
+}
+
+.release_notes:not(:empty) {
+    margin-top: 10px;
+    font-size: 80%;
+    white-space: pre-wrap;
 }
