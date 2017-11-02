@@ -26,19 +26,6 @@ namespace ExtendedVersionInfoApi {
 			}
 		}
 
-		[FunctionName(nameof(ByVersion))]
-		public static async Task<HttpResponseMessage> ByVersion([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "addon/{addon_id}/versions/{version_id}")]HttpRequestMessage req, string addon_id, int version_id) {
-			try {
-				var version = await Core.GetVersion(addon_id, version_id);
-				var extendedFiles = await Task.WhenAll(version.files.Select(f => Core.GetInformation(f)));
-				return Serialize(new {
-					files = extendedFiles
-				});
-			} catch (WebException e) when (e.Response is HttpWebResponse r) {
-				return await PassThrough(r);
-			}
-		}
-
 		[FunctionName(nameof(ByFile))]
 		public static async Task<HttpResponseMessage> ByFile([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "addon/{addon_id}/versions/{version_id}/files/{file_id}")]HttpRequestMessage req, string addon_id, int version_id, int file_id) {
 			try {
