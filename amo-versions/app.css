@@ -72,11 +72,43 @@ header h1, header span.links {
     display: block;
     border: 0;
     border-radius: 5px;
-    padding: 5px;
-    background-color: green;
-    color: white;
+    padding: 5px 10px;
+    border: 1px solid transparent;
     text-decoration: none;
     text-align: center;
+}
+
+.buttons > .install {
+    background-color: green;
+    color: white;
+}
+
+.buttons > .download {
+    border-color: dodgerblue;
+    color: dodgerblue;
+}
+
+.buttons > .install::before {
+    content: '+';
+    font-size: 200%;
+    font-weight: bold;
+    line-height: 50%;
+    vertical-align: top;
+}
+
+.buttons > .download::before {
+    content: '\2B73';
+    font-size: 150%;
+    font-weight: bold;
+    line-height: 100%;
+    vertical-align: top;
+}
+
+.buttons .icon {
+    display: inline-block;
+    font-weight: bold;
+    font-size: 150%;
+    line-height: 0;
 }
 
 .buttons :not(:first-child) {
@@ -88,7 +120,7 @@ header h1, header span.links {
     font-weight: bold;
 }
 
-.released, .compatibility {
+.released, .compatibility, .license {
     color: gray;
     font-size: 70%;
 }

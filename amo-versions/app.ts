@@ -1,48 +1,101 @@
-﻿const viewModel = {
+﻿interface Addon {
+    name: string;
+    summary: string | null;
+}
+
+interface Version {
+    id: number;
+    compatibility: {
+        [key: string]: {
+            min: string;
+            max: string;
+        }
+    };
+    files: {
+        id: number;
+        created: string;
+        is_webextension: boolean;
+        platform: string;
+        size: number;
+        status: string;
+        url: string;
+    }[];
+    is_strict_compatibility_enabled: boolean;
+    license: {
+        id: number;
+        name: string;
+        text: string;
+        url: string;
+    };
+    release_notes: string | null;
+    url: string;
+    version: string;
+}
+
+interface VersionStrings {
+    install_url: string | null;
+    download_url: string | null;
+
+    released_display: string;
+    compatibility_display: string;
+}
+
+const viewModel = {
     addon: ko.observable<any>(),
-
-    name: ko.observable<string>(),
-    summary: ko.observable<string>(),
-
     versions: ko.observableArray<any>()
-}
+};
 
-function getString(map: { [key: string]: string | undefined } | null, fallback_language?: string) {
-    if (map == null) return null;
-    return map[navigator.language] || (fallback_language && map[fallback_language]) || null;
-}
+const platform = (() => {
+    let platform: string | null = null;
+    const osStrings: any = {
+        'windows': /Windows/,
+        'mac': /Mac/,
+        'linux': /Linux|BSD/,
+        'android': /Android/,
+    };
+    for (const i in osStrings) {
+        const pattern = osStrings[i];
+        if (pattern.test(navigator.userAgent)) {
+            platform = i;
+            break;
+        }
+    }
+    return platform;
+})();
 
-function getReleasedStr(version: any) {
-    return new Date(version.files[0].created).toLocaleDateString(navigator.language, {
-        day: "numeric",
-        month: "long",
-        year: "numeric"
-    });
-}
+function extendVersionInfo(v: Version): Version & VersionStrings {
+    const file = v.files.filter((f: any) => f.platform == platform || f.platform == "all")[0] || v.files[0];
+    const xpi_url = file.url.replace(/src=$/, "src=version-history");
 
-function getCompatiblityStr(version: any) {
     const applications = [
         { id: "firefox", name: "Firefox" },
         { id: "android", name: "Firefox for Android" },
         { id: "thunderbird", name: "Thunderbird" },
         { id: "seamonkey", name: "SeaMonkey" }
     ];
-    let strs: string[] = [];
+    let compatiblityStrs: string[] = [];
     for (const app of applications) {
-        const c = version.compatibility[app.id];
+        const c = v.compatibility[app.id];
         if (c) {
             if (c.max == "*") {
-                strs.push(`${app.name} ${c.min} and above`);
+                compatiblityStrs.push(`${app.name} ${c.min} and above`);
             } else {
-                strs.push(`${app.name} ${c.min} - ${c.max}`);
+                compatiblityStrs.push(`${app.name} ${c.min} - ${c.max}`);
             }
         }
     }
-    return strs.join(", ");
-}
 
-function getReleaseNotes(version: any) {
-    return getString(version.release_notes);
+    return {
+        ...v,
+        install_url: xpi_url,
+        download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
+        released_display: new Date(file.created).toLocaleDateString(navigator.language, {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }),
+        compatibility_display: compatiblityStrs.join(", ")
+    };
 }
 
 window.onload = async () => {
@@ -59,15 +112,15 @@ window.onload = async () => {
 
     ko.applyBindings(viewModel, main);
 
-    const addon = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}`)
+    const addon = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`)
         .then(r => r.json());
     viewModel.addon(addon);
-    
-    viewModel.name(getString(addon.name, addon.default_locale));
-    viewModel.summary(getString(addon.summary, addon.default_locale));
 
-    const versions = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}`)
+    const versions: Version[] = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
         .then(r => r.json())
         .then(o => o.results);
-    viewModel.versions(versions);
+
+    const versions_ext = versions.map(extendVersionInfo);
+
+    viewModel.versions(versions_ext);
 };

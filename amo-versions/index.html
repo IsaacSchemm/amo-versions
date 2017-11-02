@@ -20,9 +20,9 @@
     </header>
 
     <div id="main">
-        <div id="summary">
+        <div id="summary" data-bind="with: addon">
             <h3>
-                <a data-bind="attr: { href: addon() ? addon().url : '' }, text: name"></a>
+                <a data-bind="attr: { href: url }, text: name"></a>
             </h3>
             <p data-bind="html: summary"></p>
         </div>
@@ -33,12 +33,10 @@
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
-                    <a style="background-color: green" href="#" data-bind="attr: { href: files[0].url }">
-                        <b>+</b>
-                        Install
+                    <a class="install" href="#" data-bind="if: install_url, attr: { href: install_url }">
+                        Add to Firefox
                     </a>
-                    <a style="background-color: dodgerblue" href="#">
-                        <b>&#11123;</b>
+                    <a class="download" href="#" data-bind="attr: { href: download_url }">
                         Download
                     </a>
                 </div>
@@ -46,9 +44,12 @@
                     Version
                     <span data-bind="text: version"></span>
                 </div>
-                <div class="released" data-bind="text: getReleasedStr($data)"></div>
-                <div class="compatibility" data-bind="text: getCompatiblityStr($data)"></div>
-                <div class="release_notes" data-bind="html: getReleaseNotes($data)"></div>
+                <div class="released" data-bind="text: released_display"></div>
+                <div class="compatibility" data-bind="text: compatibility_display"></div>
+                <div class="license" data-bind="with: license">
+                    <a href="#" data-bind="attr: { href: url }, text: name"></a>
+                </div>
+                <div class="release_notes" data-bind="html: release_notes"></div>
                 <div style="clear: both"></div>
             </div>
             <!-- /ko -->
