@@ -1,9 +1,12 @@
-﻿namespace ExtendedVersionInfoApi {
+﻿using System.Collections.Generic;
+
+namespace ExtendedVersionInfoApi {
 	public class ExtendedFileInfo {
 		public int file_id;
 		public bool bootstrapped;
 		public bool jetpack;
 		public bool has_webextension;
 		public bool is_strict_compatibility_enabled;
+		public IEnumerable<InstallRdfTargetApplicationDescription> targets;
 	}
 }

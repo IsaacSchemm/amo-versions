@@ -45,15 +45,53 @@ Usage
 * is_strict_compatibility_enabled: boolean
   * Detected from the install.rdf. This will only be true for legacy add-ons
     that specify the corresponding field in install.rdf (such as Lightning).
+* targets: array of objects, extracted from targetApplication in install.rdf
+  * id: string
+  * minVersion: string
+  * maxVersion: string
 
-**Example**
+**Examples**
 
-    GET /api/addon/8542/versions/2210787/files/751974
+    GET /api/addon/lastpass-password-manager/versions/2210787/files/751974
 
     {
       "file_id": 751974,
       "bootstrapped": true,
       "jetpack": true,
       "has_webextension": true,
-      "is_strict_compatibility_enabled": false
+      "is_strict_compatibility_enabled": false,
+      "targets": [
+        {
+          "id": "{aa3c5121-dab2-40e2-81ca-7ea25febc110}",
+          "minVersion": "38.0a1",
+          "maxVersion": "*"
+        },
+        {
+          "id": "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+          "minVersion": "38.0a1",
+          "maxVersion": "*"
+        }
+      ]
+    }
+
+    GET /api/addon/lightning/versions/2084735/files/633791
+
+    {
+      "file_id": 633791,
+      "bootstrapped": false,
+      "jetpack": false,
+      "has_webextension": false,
+      "is_strict_compatibility_enabled": true,
+      "targets": [
+        {
+          "id": "{3550f703-e582-4d05-9a08-453d09bdfdc6}",
+          "minVersion": "52.0",
+          "maxVersion": "52.*"
+        },
+        {
+          "id": "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}",
+          "minVersion": "2.49",
+          "maxVersion": "2.49.*"
+        }
+      ]
     }

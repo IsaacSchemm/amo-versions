@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -53,9 +54,12 @@ namespace ExtendedVersionInfoApi {
 							using (var stream = entry.Open()) {
 								var serializer = new XmlSerializer(typeof(InstallRdf));
 								var installRdf = serializer.Deserialize(stream) as InstallRdf;
-								obj.bootstrapped = installRdf?.Description?.bootstrap ?? false;
-								obj.has_webextension = installRdf?.Description?.hasEmbeddedWebExtension ?? false;
-								obj.is_strict_compatibility_enabled = installRdf?.Description?.strictCompatibility ?? false;
+								if (installRdf != null) {
+									obj.bootstrapped = installRdf.Description.bootstrap ?? false;
+									obj.has_webextension = installRdf.Description.hasEmbeddedWebExtension ?? false;
+									obj.is_strict_compatibility_enabled = installRdf.Description.strictCompatibility ?? false;
+									obj.targets = installRdf.Description.targetApplication.Select(d => d.Description);
+								}
 							}
 						}
 						obj.jetpack = zip.GetEntry("harness-options.json") != null
