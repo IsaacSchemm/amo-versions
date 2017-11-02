@@ -1,6 +1,5 @@
 ﻿namespace ExtendedVersionInfoApi {
-	public class ExtendedVersionInfo {
-		public int version_id;
+	public class ExtendedFileInfo {
 		public int file_id;
 		public bool bootstrapped;
 		public bool jetpack;

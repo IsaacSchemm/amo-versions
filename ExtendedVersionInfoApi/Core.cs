@@ -8,7 +8,7 @@ using System.Xml.Serialization;
 
 namespace ExtendedVersionInfoApi {
 	public static class Core {
-		private static Dictionary<int, ExtendedVersionInfo> cache = new Dictionary<int, ExtendedVersionInfo>();
+		private static Dictionary<int, ExtendedFileInfo> cache = new Dictionary<int, ExtendedFileInfo>();
 
 		public static HttpWebRequest CreateRequest(string url) {
 			var request = WebRequest.CreateHttp(url);
@@ -17,7 +17,7 @@ namespace ExtendedVersionInfoApi {
 			return request;
 		}
 
-		public static async Task<AmoVersion> GetVersion(string addon_id, string version_id) {
+		public static async Task<AmoVersion> GetVersion(string addon_id, int version_id) {
 			string url = $"https://addons.mozilla.org/api/v3/addons/addon/{addon_id}/versions/{version_id}";
 			using (var response = await Core.CreateRequest(url).GetResponseAsync()) {
 				using (var sr = new StreamReader(response.GetResponseStream())) {
@@ -26,13 +26,12 @@ namespace ExtendedVersionInfoApi {
 			}
 		}
 
-		public static async Task<ExtendedVersionInfo> GetInformation(int version_id, AmoFile file) {
-			if (cache.TryGetValue(file.id, out ExtendedVersionInfo cached)) {
+		public static async Task<ExtendedFileInfo> GetInformation(AmoFile file) {
+			if (cache.TryGetValue(file.id, out ExtendedFileInfo cached)) {
 				return cached;
 			}
 
-			var obj = new ExtendedVersionInfo {
-				version_id = version_id,
+			var obj = new ExtendedFileInfo {
 				file_id = file.id
 			};
 
@@ -64,7 +63,7 @@ namespace ExtendedVersionInfoApi {
 					}
 				}
 			}
-
+			
 			cache[file.id] = obj;
 
 			return obj;
