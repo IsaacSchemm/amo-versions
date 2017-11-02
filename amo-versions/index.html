@@ -27,21 +27,34 @@
             <p data-bind="html: summary"></p>
         </div>
 
-        <h2><span data-bind="text: name"></span> Version History</h2>
+        <div id="main-column">
+            <h2><span data-bind="text: name"></span> Version History</h2>
 
-        <!-- ko foreach: versions -->
-        <div class="version">
-            <div class="version-header">
-                Version
-                <span data-bind="text: version"></span>
+            <!-- ko foreach: versions -->
+            <div class="version">
+                <div class="buttons">
+                    <a style="background-color: green" href="#" data-bind="attr: { href: files[0].url }">
+                        <b>+</b>
+                        Install
+                    </a>
+                    <a style="background-color: dodgerblue" href="#">
+                        <b>&#11123;</b>
+                        Download
+                    </a>
+                </div>
+                <div class="version-header">
+                    Version
+                    <span data-bind="text: version"></span>
+                </div>
+                <div class="released" data-bind="text: getReleasedStr($data)"></div>
+                <div class="compatibility" data-bind="text: getCompatiblityStr($data)"></div>
+                <div class="release_notes" data-bind="html: getReleaseNotes($data)"></div>
+                <div style="clear: both"></div>
             </div>
-            <div class="released" data-bind="text: getReleasedStr($data)"></div>
-            <div class="compatibility" data-bind="text: getCompatiblityStr($data)"></div>
-            <div class="release_notes" data-bind="html: getReleaseNotes($data)"></div>
-        </div>
-        <!-- /ko -->
+            <!-- /ko -->
 
-        <div id="content"></div>
+            <div id="content"></div>
+        </div>
     </div>
 </body>
 </html>

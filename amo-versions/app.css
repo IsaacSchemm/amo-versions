@@ -49,17 +49,38 @@ header h1, header span.links {
     margin-bottom: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     #summary {
         float: right;
-        max-width: 400px;
-        outline: 10px solid white;
+        width: 300px;
+    }
+    #main-column {
+        margin-right: 332px;
     }
 }
 
 .version {
     border-top: 1px dotted gray;
     padding: 10px;
+}
+
+.buttons {
+    float: right;
+}
+
+.buttons > * {
+    display: block;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: green;
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+.buttons :not(:first-child) {
+    margin-top: 5px;
 }
 
 .version-header {
