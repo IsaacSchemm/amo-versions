@@ -10,23 +10,23 @@ header {
     position: relative;
 }
 
-header a {
-    color: white;
-}
+    header a {
+        color: white;
+    }
 
-header h1 {
-    margin: 0;
-}
+    header h1 {
+        margin: 0;
+    }
 
-header span.links {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-}
+    header span.links {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
 
-header h1, header span.links {
-    padding: 10px;
-}
+    header h1, header span.links {
+        padding: 10px;
+    }
 
 #main {
     margin: 10px;
@@ -38,23 +38,24 @@ header h1, header span.links {
     background-color: #f0f0f0;
 }
 
-#summary:empty {
-    display: none;
-}
+    #summary:empty {
+        display: none;
+    }
 
-#summary > :first-child {
-    margin-top: 0;
-}
+    #summary > :first-child {
+        margin-top: 0;
+    }
 
-#summary > :last-child {
-    margin-bottom: 0;
-}
+    #summary > :last-child {
+        margin-bottom: 0;
+    }
 
 @media (min-width: 1024px) {
     #summary {
         float: right;
         width: 300px;
     }
+
     #main-column {
         margin-right: 332px;
     }
@@ -69,57 +70,71 @@ header h1, header span.links {
     float: right;
 }
 
-.buttons > * {
-    display: block;
-    border: 0;
-    border-radius: 5px;
-    padding: 5px 10px;
-    border: 1px solid transparent;
-    text-decoration: none;
-    text-align: center;
-}
+    .buttons > * {
+        display: block;
+        border: 0;
+        border-radius: 5px;
+        padding: 5px 10px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        text-align: center;
+    }
 
-.buttons > .install {
-    background-color: green;
-    color: white;
-}
+    .buttons > .install {
+        background-color: green;
+        color: white;
+    }
 
-.buttons > .download {
-    border-color: dodgerblue;
-    color: dodgerblue;
-}
+    .buttons > .download {
+        border-color: dodgerblue;
+        color: dodgerblue;
+    }
 
-.buttons > .install::before {
-    content: '+';
-    font-size: 200%;
-    font-weight: bold;
-    line-height: 50%;
-    vertical-align: top;
-}
+    .buttons > .install::before {
+        content: '+';
+        font-size: 200%;
+        font-weight: bold;
+        line-height: 50%;
+        vertical-align: top;
+    }
 
-.buttons > .download::before {
-    content: '\2B73';
-    font-size: 150%;
-    font-weight: bold;
-    line-height: 100%;
-    vertical-align: top;
-}
+    .buttons > .download::before {
+        content: '\2B73';
+        font-size: 150%;
+        font-weight: bold;
+        line-height: 100%;
+        vertical-align: top;
+    }
 
-.buttons .icon {
-    display: inline-block;
-    font-weight: bold;
-    font-size: 150%;
-    line-height: 0;
-}
+    .buttons .icon {
+        display: inline-block;
+        font-weight: bold;
+        font-size: 150%;
+        line-height: 0;
+    }
 
-.buttons :not(:first-child) {
-    margin-top: 5px;
-}
+    .buttons :not(:first-child) {
+        margin-top: 5px;
+    }
 
 .version-header {
     font-size: 125%;
     font-weight: bold;
 }
+
+    .version-header .tags > * {
+        background-color: blue;
+        color: white;
+        border-radius: 5px;
+        padding: 1px 5px;
+        font-size: 60%;
+        vertical-align: bottom;
+        line-height: 200%;
+    }
+
+    .version-header .tags > :empty {
+        display: none;
+    }
 
 .released, .compatibility, .license {
     color: gray;

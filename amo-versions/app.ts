@@ -48,7 +48,7 @@ interface ExtendedFileInfo {
     }[];
 }
 
-interface FlatVersionFileInfo extends AmoVersion {
+interface FlatVersion extends AmoVersion {
     strings: {
         install_url: string | null;
         download_url: string | null;
@@ -62,7 +62,10 @@ interface FlatVersionFileInfo extends AmoVersion {
 
 const viewModel = {
     addon: ko.observable<Addon>(),
-    versions: ko.observableArray<FlatVersionFileInfo>()
+    versions: ko.observableArray<FlatVersion>(),
+    page: ko.observable<number>(),
+    last_page: ko.observable<boolean>(),
+    next_page: ko.observable<boolean>(),
 };
 
 const platform = (() => {
@@ -83,15 +86,11 @@ const platform = (() => {
     return platform;
 })();
 
-function extendVersionInfo(addon_id: number, v: AmoVersion): FlatVersionFileInfo {
+const extendedFileInfoPromises: PromiseLike<void>[] = [];
+
+function extendVersionInfo(v: AmoVersion): FlatVersion {
     const file = v.files.filter((f: any) => f.platform == platform || f.platform == "all")[0] || v.files[0];
-
-    const observable = ko.observable<ExtendedFileInfo | null>(null);
-    fetch(`https://amo-versions-lakora.azurewebsites.net/api/addon/${addon_id}/versions/${v.id}/files/${file.id}`)
-        .then(r => r.json())
-        .then(o => observable(o))
-        .catch(e => console.error(e));
-
+    
     const xpi_url = file.url.replace(/src=$/, "src=version-history");
 
     const applications = [
@@ -115,7 +114,7 @@ function extendVersionInfo(addon_id: number, v: AmoVersion): FlatVersionFileInfo
     return {
         ...v,
         file: file,
-        ext_file: observable,
+        ext_file: ko.observable<ExtendedFileInfo | null>(null),
         strings: {
             install_url: xpi_url,
             download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
@@ -130,28 +129,35 @@ function extendVersionInfo(addon_id: number, v: AmoVersion): FlatVersionFileInfo
 }
 
 window.onload = async () => {
-    const main = document.getElementById("main");
-
     const searchParams = new URLSearchParams(location.search);
     const id = searchParams.get('id');
-    const page = searchParams.get('page') || "1";
+    const page = +(searchParams.get('page') || "1");
 
     if (id == null) {
-        main!.innerHTML = "Use the ?id= parameter to specify an add-on, using a slug, GUID, or numeric ID.";
+        document.getElementById("main")!.innerHTML = "Use the ?id= parameter to specify an add-on, using a slug, GUID, or numeric ID.";
         return;
     }
 
-    ko.applyBindings(viewModel, main);
+    ko.applyBindings(viewModel, document.body);
 
     const addon = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`)
         .then(r => r.json());
     viewModel.addon(addon);
 
-    const versions: AmoVersion[] = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
-        .then(r => r.json())
-        .then(o => o.results);
+    const versions_response = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
+        .then(r => r.json());
+    viewModel.page(page);
+    viewModel.last_page(page > 1);
+    viewModel.next_page(versions_response.next != null);
 
-    const versions_ext = versions.map(v => extendVersionInfo(addon.id, v));
-
+    const versions_ext = versions_response.results.map(extendVersionInfo);
     viewModel.versions(versions_ext);
+    
+    viewModel.versions().map(async v => {
+        try {
+            v.ext_file(await fetch(`https://amo-versions-lakora.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`).then(r => r.json()));
+        } catch (e) {
+            console.error(e);
+        }
+    });
 };

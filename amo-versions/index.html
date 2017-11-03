@@ -43,12 +43,14 @@
                 <div class="version-header">
                     Version
                     <span data-bind="text: version"></span>
-                    <div data-bind="with: ext_file">
-                        bootstrapped: <span data-bind="text: bootstrapped"></span><br />
-                        jetpack: <span data-bind="text: jetpack"></span><br />
-                        has_webextension: <span data-bind="text: has_webextension"></span><br />
-                        is_strict_compatibility_enabled: <span data-bind="text: is_strict_compatibility_enabled"></span><br />
-                    </div>
+                    <span class="tags">
+                        <!-- ko with: ext_file -->
+                        <span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Overlay</span>
+                        <span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
+                        <span data-bind="if: jetpack" style="background-color: royalblue">Jetpack</span>
+                        <span data-bind="if: has_webextension" style="background-color: red">WebExtensions</span>
+                        <!-- /ko -->
+                    </span>
                 </div>
                 <div class="released" data-bind="text: strings.released_display"></div>
                 <div class="compatibility" data-bind="text: strings.compatibility_display"></div>
@@ -65,6 +67,8 @@
     </div>
 
     <footer>
+        <a href="#" data-bind="if: last_page">Previous</a>
+        <a href="#" data-bind="if: next_page">Next</a>
         <p>
             This site uses data from addons.mozila.org, but is not affiliated
             with Mozilla.

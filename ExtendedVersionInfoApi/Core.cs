@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -51,9 +52,18 @@ namespace ExtendedVersionInfoApi {
 					using (var zip = new ZipArchive(ms, ZipArchiveMode.Read)) {
 						var entry = zip.GetEntry("install.rdf");
 						if (entry != null) {
-							using (var stream = entry.Open()) {
+							string xml;
+							using (var sr = new StreamReader(entry.Open())) {
+								xml = await sr.ReadToEndAsync();
+							}
+							if (xml.Contains("<RDF:Description")) {
+								xml = xml
+									.Replace("<Description", "<RDF:Description")
+									.Replace("</Description", "</RDF:Description");
+							}
+							using (var sr = new StringReader(xml)) {
 								var serializer = new XmlSerializer(typeof(InstallRdf));
-								var installRdf = serializer.Deserialize(stream) as InstallRdf;
+								var installRdf = serializer.Deserialize(sr) as InstallRdf;
 								if (installRdf != null) {
 									obj.bootstrapped = installRdf.Description.bootstrap ?? false;
 									obj.has_webextension = installRdf.Description.hasEmbeddedWebExtension ?? false;
@@ -72,8 +82,10 @@ namespace ExtendedVersionInfoApi {
 					}
 				}
 			}
-			
-			cache[file.id] = obj;
+
+			try {
+				cache[file.id] = obj;
+			} catch (NullReferenceException) { }
 
 			return obj;
 		}

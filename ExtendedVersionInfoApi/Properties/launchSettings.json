@@ -1,7 +1,8 @@
 {
   "profiles": {
     "ExtendedVersionInfoApi": {
-      "commandName": "Project"
+      "commandName": "Project",
+      "commandLineArgs": "host start --cors *"
     }
   }
 }
