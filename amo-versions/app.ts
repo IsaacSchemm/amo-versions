@@ -45,19 +45,18 @@ interface ExtendedFileInfo {
             min: string;
             max: string;
         }
-    }[];
+    };
 }
 
 interface FlatVersion extends AmoVersion {
     strings: {
         install_url: string | null;
         download_url: string | null;
-
         released_display: string;
-        compatibility_display: string;
     };
     file: AmoFile;
     ext_file: KnockoutObservable<ExtendedFileInfo | null>;
+    compatibility_display: KnockoutObservable<string>;
 }
 
 const viewModel = {
@@ -105,28 +104,68 @@ function extendVersionInfo(v: AmoVersion): FlatVersion {
     
     const xpi_url = file.url.replace(/src=$/, "src=version-history");
 
-    const applications = [
-        { id: "firefox", name: "Firefox" },
-        { id: "android", name: "Firefox for Android" },
-        { id: "thunderbird", name: "Thunderbird" },
-        { id: "seamonkey", name: "SeaMonkey" }
-    ];
+    const applications_by_name: {
+        [key: string]: string | undefined
+    } = {
+        firefox: "Firefox",
+        android: "Firefox for Android",
+        thunderbird: "Thunderbird",
+        seamonkey: "SeaMonkey"
+    };
+
     let compatiblityStrs: string[] = [];
-    for (const app of applications) {
-        const c = v.compatibility[app.id];
-        if (c) {
-            if (c.max == "*") {
-                compatiblityStrs.push(`${app.name} ${c.min} and above`);
-            } else {
-                compatiblityStrs.push(`${app.name} ${c.min} - ${c.max}`);
+    for (let id in applications_by_name) {
+        const c = v.compatibility[id];
+        if (!c) continue;
+
+        const name = applications_by_name[id] || id;
+        compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
+    }
+    const compatibility_display = ko.observable<string>(compatiblityStrs.join(", "));
+
+    const ext_file = ko.observable<ExtendedFileInfo | null>(null);
+    ext_file.subscribe(f => {
+        if (!f) return;
+        if (!f.targets) {
+            console.error(f);
+            return;
+        }
+
+        const applications_by_guid: {
+            [key: string]: string | undefined
+        } = {
+            "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": "Firefox",
+            "{aa3c5121-dab2-40e2-81ca-7ea25febc110}": "Firefox for Android",
+            "{3550f703-e582-4d05-9a08-453d09bdfdc6}": "Thunderbird",
+            "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
+            "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}": "Pale Moon",
+            "{a23983c0-fd0e-11dc-95ff-0800200c9a66}": "Fennec",
+            "{718e30fb-e89b-41dd-9da7-e25a45638b28}": "Sunbird",
+            "toolkit@mozilla.org": "Toolkit"
+        };
+
+        let compatiblityStrs: string[] = [];
+        for (let guid in applications_by_guid) {
+            const c = f.targets[guid];
+            if (!c) continue;
+
+            const name = applications_by_guid[guid] || guid;
+            if (/Firefox/.test(name) && c.max == "*") {
+                c.max = "56.*";
+            }
+            compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
+        }
+        for (let guid in f.targets) {
+            if (!(guid in applications_by_guid)) {
+                console.log(guid);
             }
         }
-    }
+        compatibility_display(compatiblityStrs.join(", "));
+    });
 
     return {
         ...v,
         file: file,
-        ext_file: ko.observable<ExtendedFileInfo | null>(null),
         strings: {
             install_url: xpi_url,
             download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
@@ -134,9 +173,10 @@ function extendVersionInfo(v: AmoVersion): FlatVersion {
                 day: "numeric",
                 month: "long",
                 year: "numeric"
-            }),
-            compatibility_display: compatiblityStrs.join(", ")
-        }
+            })
+        },
+        ext_file: ext_file,
+        compatibility_display: compatibility_display
     };
 }
 
