@@ -1,16 +1,16 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace ExtendedVersionInfoApi {
 	public static class Core {
-		private static Dictionary<int, ExtendedFileInfo> cache = new Dictionary<int, ExtendedFileInfo>();
+		private static MemoryCache cache = MemoryCache.Default;
 
 		public static HttpWebRequest CreateRequest(string url) {
 			var request = WebRequest.CreateHttp(url);
@@ -29,9 +29,7 @@ namespace ExtendedVersionInfoApi {
 		}
 
 		public static async Task<ExtendedFileInfo> GetInformation(AmoFile file) {
-			if (cache.TryGetValue(file.id, out ExtendedFileInfo cached)) {
-				return cached;
-			}
+			if (cache[$"ExtendedFileInfo:{file.id}"] is ExtendedFileInfo cached) return cached;
 
 			var obj = new ExtendedFileInfo {
 				id = file.id
@@ -63,7 +61,7 @@ namespace ExtendedVersionInfoApi {
 							}
 							using (var sr = new StringReader(xml)) {
 								var serializer = new XmlSerializer(typeof(InstallRdf));
-								var installRdf = serializer.Deserialize(sr) as InstallRdf;
+								var installRdf = (InstallRdf)serializer.Deserialize(sr);
 								if (installRdf != null) {
 									obj.bootstrapped = installRdf.Description.bootstrap ?? false;
 									obj.has_webextension = installRdf.Description.hasEmbeddedWebExtension ?? false;
@@ -84,7 +82,9 @@ namespace ExtendedVersionInfoApi {
 			}
 
 			try {
-				cache[file.id] = obj;
+				cache.Add($"ExtendedFileInfo:{file.id}", obj, new CacheItemPolicy {
+					Priority = CacheItemPriority.Default
+				});
 			} catch (NullReferenceException) { }
 
 			return obj;
