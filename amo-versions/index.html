@@ -33,19 +33,25 @@
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
-                    <a class="install" href="#" data-bind="if: install_url, attr: { href: install_url }">
+                    <a class="install" href="#" data-bind="if: strings.install_url, attr: { href: strings.install_url }">
                         Add to Firefox
                     </a>
-                    <a class="download" href="#" data-bind="attr: { href: download_url }">
+                    <a class="download" href="#" data-bind="attr: { href: strings.download_url }">
                         Download
                     </a>
                 </div>
                 <div class="version-header">
                     Version
                     <span data-bind="text: version"></span>
+                    <div data-bind="with: ext_file">
+                        bootstrapped: <span data-bind="text: bootstrapped"></span><br />
+                        jetpack: <span data-bind="text: jetpack"></span><br />
+                        has_webextension: <span data-bind="text: has_webextension"></span><br />
+                        is_strict_compatibility_enabled: <span data-bind="text: is_strict_compatibility_enabled"></span><br />
+                    </div>
                 </div>
-                <div class="released" data-bind="text: released_display"></div>
-                <div class="compatibility" data-bind="text: compatibility_display"></div>
+                <div class="released" data-bind="text: strings.released_display"></div>
+                <div class="compatibility" data-bind="text: strings.compatibility_display"></div>
                 <div class="license" data-bind="with: license">
                     <a href="#" data-bind="attr: { href: url }, text: name"></a>
                 </div>

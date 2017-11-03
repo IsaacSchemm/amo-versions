@@ -3,7 +3,7 @@
     summary: string | null;
 }
 
-interface Version {
+interface AmoVersion {
     id: number;
     compatibility: {
         [key: string]: {
@@ -11,15 +11,7 @@ interface Version {
             max: string;
         }
     };
-    files: {
-        id: number;
-        created: string;
-        is_webextension: boolean;
-        platform: string;
-        size: number;
-        status: string;
-        url: string;
-    }[];
+    files: AmoFile[];
     is_strict_compatibility_enabled: boolean;
     license: {
         id: number;
@@ -32,17 +24,45 @@ interface Version {
     version: string;
 }
 
-interface VersionStrings {
-    install_url: string | null;
-    download_url: string | null;
+interface AmoFile {
+    id: number;
+    created: string;
+    is_webextension: boolean;
+    platform: string;
+    size: number;
+    status: string;
+    url: string;
+}
 
-    released_display: string;
-    compatibility_display: string;
+interface ExtendedFileInfo {
+    id: number;
+    bootstrapped: boolean;
+    jetpack: boolean;
+    has_webextension: boolean;
+    is_strict_compatibility_enabled: boolean;
+    targets: {
+        [guid: string]: {
+            min: string;
+            max: string;
+        }
+    }[];
+}
+
+interface FlatVersionFileInfo extends AmoVersion {
+    strings: {
+        install_url: string | null;
+        download_url: string | null;
+
+        released_display: string;
+        compatibility_display: string;
+    };
+    file: AmoFile;
+    ext_file: KnockoutObservable<ExtendedFileInfo | null>;
 }
 
 const viewModel = {
-    addon: ko.observable<any>(),
-    versions: ko.observableArray<any>()
+    addon: ko.observable<Addon>(),
+    versions: ko.observableArray<FlatVersionFileInfo>()
 };
 
 const platform = (() => {
@@ -63,8 +83,15 @@ const platform = (() => {
     return platform;
 })();
 
-function extendVersionInfo(v: Version): Version & VersionStrings {
+function extendVersionInfo(addon_id: number, v: AmoVersion): FlatVersionFileInfo {
     const file = v.files.filter((f: any) => f.platform == platform || f.platform == "all")[0] || v.files[0];
+
+    const observable = ko.observable<ExtendedFileInfo | null>(null);
+    fetch(`https://amo-versions-lakora.azurewebsites.net/api/addon/${addon_id}/versions/${v.id}/files/${file.id}`)
+        .then(r => r.json())
+        .then(o => observable(o))
+        .catch(e => console.error(e));
+
     const xpi_url = file.url.replace(/src=$/, "src=version-history");
 
     const applications = [
@@ -87,14 +114,18 @@ function extendVersionInfo(v: Version): Version & VersionStrings {
 
     return {
         ...v,
-        install_url: xpi_url,
-        download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
-        released_display: new Date(file.created).toLocaleDateString(navigator.language, {
-            day: "numeric",
-            month: "long",
-            year: "numeric"
-        }),
-        compatibility_display: compatiblityStrs.join(", ")
+        file: file,
+        ext_file: observable,
+        strings: {
+            install_url: xpi_url,
+            download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
+            released_display: new Date(file.created).toLocaleDateString(navigator.language, {
+                day: "numeric",
+                month: "long",
+                year: "numeric"
+            }),
+            compatibility_display: compatiblityStrs.join(", ")
+        }
     };
 }
 
@@ -116,11 +147,11 @@ window.onload = async () => {
         .then(r => r.json());
     viewModel.addon(addon);
 
-    const versions: Version[] = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
+    const versions: AmoVersion[] = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
         .then(r => r.json())
         .then(o => o.results);
 
-    const versions_ext = versions.map(extendVersionInfo);
+    const versions_ext = versions.map(v => extendVersionInfo(addon.id, v));
 
     viewModel.versions(versions_ext);
 };

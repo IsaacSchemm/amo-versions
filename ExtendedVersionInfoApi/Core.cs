@@ -33,7 +33,7 @@ namespace ExtendedVersionInfoApi {
 			}
 
 			var obj = new ExtendedFileInfo {
-				file_id = file.id
+				id = file.id
 			};
 
 			if (file.is_webextension) {
@@ -58,7 +58,12 @@ namespace ExtendedVersionInfoApi {
 									obj.bootstrapped = installRdf.Description.bootstrap ?? false;
 									obj.has_webextension = installRdf.Description.hasEmbeddedWebExtension ?? false;
 									obj.is_strict_compatibility_enabled = installRdf.Description.strictCompatibility ?? false;
-									obj.targets = installRdf.Description.targetApplication.Select(d => d.Description);
+									obj.targets = installRdf.Description.targetApplication
+										.Select(a => a.Description)
+										.ToDictionary(d => d.id, d => new ExtendedFileInfoTarget {
+											min = d.minVersion,
+											max = d.maxVersion
+										});
 								}
 							}
 						}
