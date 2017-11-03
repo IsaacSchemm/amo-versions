@@ -37,7 +37,9 @@
         </div>
 
         <div id="main-column">
-            <h2><span data-bind="text: addon.name"></span> Version History</h2>
+            <h2 data-bind="with: addon">
+                <span data-bind="text: name"></span> Version History
+            </h2>
 
             <!-- ko foreach: versions -->
             <div class="version">
