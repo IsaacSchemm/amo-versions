@@ -126,41 +126,21 @@ function extendVersionInfo(v: AmoVersion): FlatVersion {
     const ext_file = ko.observable<ExtendedFileInfo | null>(null);
     ext_file.subscribe(f => {
         if (!f) return;
-        if (!f.targets) {
-            console.error(f);
-            return;
-        }
 
         const applications_by_guid: {
             [key: string]: string | undefined
         } = {
-            "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": "Firefox",
-            "{aa3c5121-dab2-40e2-81ca-7ea25febc110}": "Firefox for Android",
-            "{3550f703-e582-4d05-9a08-453d09bdfdc6}": "Thunderbird",
-            "{92650c4d-4b8e-4d2a-b7eb-24ecf4f6b63a}": "SeaMonkey",
             "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}": "Pale Moon",
-            "{a23983c0-fd0e-11dc-95ff-0800200c9a66}": "Fennec",
-            "{718e30fb-e89b-41dd-9da7-e25a45638b28}": "Sunbird",
             "toolkit@mozilla.org": "Toolkit"
         };
-
-        let compatiblityStrs: string[] = [];
+        
         for (let guid in applications_by_guid) {
             const c = f.targets[guid];
             if (!c) continue;
 
             const name = applications_by_guid[guid] || guid;
-            if (/Firefox/.test(name) && c.max == "*") {
-                c.max = "56.*";
-            }
-            compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
+            compatibility_display(`${compatibility_display()}, ${name} ${c.min} - ${c.max}`);
         }
-        for (let guid in f.targets) {
-            if (!(guid in applications_by_guid)) {
-                console.log(guid);
-            }
-        }
-        compatibility_display(compatiblityStrs.join(", "));
     });
 
     return {
@@ -208,7 +188,12 @@ window.onload = async () => {
     
     viewModel.versions().map(async v => {
         try {
-            v.ext_file(await fetch(`https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`).then(r => r.json()));
+            const url = `https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`;
+            const r = await fetch(url);
+            if (r.status >= 300) {
+                throw new Error(`${url} returned status code ${r.status}: ${await r.text()}`);
+            }
+            v.ext_file(await r.json());
         } catch (e) {
             console.error(e);
         }
