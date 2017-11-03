@@ -6,7 +6,7 @@
 interface AmoVersion {
     id: number;
     compatibility: {
-        [key: string]: {
+        [key: string]: undefined | {
             min: string;
             max: string;
         }
@@ -41,7 +41,7 @@ interface ExtendedFileInfo {
     has_webextension: boolean;
     is_strict_compatibility_enabled: boolean;
     targets: {
-        [guid: string]: {
+        [guid: string]: undefined | {
             min: string;
             max: string;
         }
@@ -109,6 +109,21 @@ class FlatVersion {
             ...version.files
         ][0];
         this.ext_file = ko.observable(null);
+
+        if (this.file.is_webextension) {
+            // We already know what these fields will be
+            this.ext_file({
+                id: this.file.id,
+                bootstrapped: false,
+                has_webextension: true,
+                is_strict_compatibility_enabled: false,
+                jetpack: false,
+                targets: {
+                    "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}": version.compatibility["firefox"],
+                    "{aa3c5121-dab2-40e2-81ca-7ea25febc110}": version.compatibility["android"]
+                }
+            });
+        }
 
         const xpi_url = this.file.url.replace(/src=$/, "src=version-history");
         this.install_url = xpi_url;
@@ -198,7 +213,7 @@ class FlatVersion {
                     }
 
                     // No support for Pale Moon, check Firefox
-                    return this.version.compatibility["firefox"] && !this.file.is_webextension;
+                    return this.version.compatibility["firefox"] != null && !this.file.is_webextension;
                 case "seamonkey":
                 case "thunderbird":
                     if (!amo_compat) return false; // Not compatible
@@ -281,8 +296,12 @@ class FlatVersion {
     }
 }
 
-function extendVersionInfo(v: AmoVersion): FlatVersion {
-    return new FlatVersion(v);
+async function get_json(url: string) {
+    const response = await fetch(url);
+    if (response.status >= 400) {
+        throw new Error(`${url} returned status code ${response.status}: ${await response.text()}`);
+    }
+    return response.json();
 }
 
 window.onload = async () => {
@@ -298,12 +317,10 @@ window.onload = async () => {
 
     ko.applyBindings(viewModel, document.body);
 
-    const addon = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`)
-        .then(r => r.json());
+    const addon = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`);
     viewModel.addon(addon);
 
-    const versions_response = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`)
-        .then(r => r.json());
+    const versions_response = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`);
     viewModel.page(page);
     viewModel.last_page(page > 1);
     viewModel.next_page(versions_response.next != null);
@@ -313,12 +330,9 @@ window.onload = async () => {
     
     viewModel.versions().map(async fv => {
         try {
-            const url = `https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`;
-            const r = await fetch(url);
-            if (r.status >= 300) {
-                throw new Error(`${url} returned status code ${r.status}: ${await r.text()}`);
+            if (fv.ext_file() == null) {
+                fv.ext_file(await get_json(`https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`));
             }
-            fv.ext_file(await r.json());
         } catch (e) {
             console.error(e);
         }
