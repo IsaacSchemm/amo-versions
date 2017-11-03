@@ -53,15 +53,18 @@
                     <a class="download button" href="#" data-bind="attr: { href: download_url }">
                         Download .xpi
                     </a>
+                    <div class="not-compatible" data-bind="if: !app_compatible() && !convertible()">
+                        This add-on is not compatible with your version of <span data-bind="text: app_name">Firefox</span>.
+                    </div>
                 </div>
                 <div class="version-header">
                     Version
                     <span data-bind="text: version.version"></span>
                     <span class="tags">
                         <!-- ko with: ext_file -->
-                        <span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Overlay</span>
+                        <span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Restart Required</span>
                         <span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
-                        <span data-bind="if: jetpack" style="background-color: royalblue">Jetpack</span>
+                        <span data-bind="if: jetpack" style="background-color: darkcyan">Jetpack</span>
                         <span data-bind="if: has_webextension" style="background-color: red">WebExtensions</span>
                         <!-- /ko -->
                     </span>

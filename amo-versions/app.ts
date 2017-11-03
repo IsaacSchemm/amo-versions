@@ -164,21 +164,30 @@ class FlatVersion {
                 "toolkit@mozilla.org": "Toolkit"
             };
 
+            const ext_file = this.ext_file();
+
             // See which Mozilla applications this works with
             for (let id in applications_by_name) {
                 const c = this.version.compatibility[id];
                 if (!c) continue;
 
+                if (id == "thunderbird" || id == "seamonkey") {
+                    // Some add-ons with embedded WebExtensions incorrectly
+                    // declare compatibility with SM/TB.
+                    if (ext_file && ext_file.has_webextension) {
+                        continue;
+                    }
+                }
+
                 const name = applications_by_name[id] || id;
                 compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
             }
 
-            const f = this.ext_file();
-            if (f) {
+            if (ext_file) {
                 // Data is loaded
                 // See if there are any other applications this works with
                 for (let guid in applications_by_guid) {
-                    const c = f.targets[guid];
+                    const c = ext_file.targets[guid];
                     if (!c) continue;
 
                     const name = applications_by_guid[guid] || guid;
