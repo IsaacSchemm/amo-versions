@@ -202,11 +202,13 @@ class FlatVersion {
             : /PaleMoon/.test(navigator.userAgent) ? "palemoon"
                 : /Thunderbird/.test(navigator.userAgent) ? "thunderbird"
                     : /Android/.test(navigator.userAgent) ? "android"
-                        : "firefox";
+                        : /Firefox/.test(navigator.userAgent) ? "firefox"
+                            : "";
         this.app_name = /SeaMonkey/.test(navigator.userAgent) ? "SeaMonkey"
             : /PaleMoon/.test(navigator.userAgent) ? "Pale Moon"
                 : /Thunderbird/.test(navigator.userAgent) ? "Thunderbird"
-                    : "Firefox";
+                    : /Firefox/.test(navigator.userAgent) ? "firefox"
+                        : "Browser";
 
         this.app_compatible = ko.pureComputed(() => {
             const ext_file = this.ext_file();
@@ -242,12 +244,15 @@ class FlatVersion {
                         }
                     }
                     return true;
-                default:
+                case "firefox":
+                case "android":
                     if (!amo_compat) return false; // Not compatible
                     if (!FlatVersion.checkMinVersion(amo_compat.min)) return false; // Only supports newer versions
                     if (this.version.is_strict_compatibility_enabled) {
                         if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions (includes legacy add-ons in Fx 57+)
                     }
+                    return true;
+                default:
                     return true;
             }
         });
