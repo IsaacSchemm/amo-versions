@@ -100,6 +100,9 @@ class FlatVersion {
     readonly app_name: string;
     readonly app_compatible: KnockoutComputed<boolean>;
 
+    readonly converter_url: string;
+    readonly convertible: KnockoutComputed<boolean>;
+
     constructor(readonly version: AmoVersion) {
         this.file = [
             ...version.files.filter(f => f.platform == platform || f.platform == "all"),
@@ -167,6 +170,7 @@ class FlatVersion {
             : /PaleMoon/.test(navigator.userAgent) ? "Pale Moon"
                 : /Thunderbird/.test(navigator.userAgent) ? "Thunderbird"
                     : "Firefox";
+
         this.app_compatible = ko.pureComputed(() => {
             const ext_file = this.ext_file();
             const amo_compat = this.version.compatibility[this.target];
@@ -178,10 +182,11 @@ class FlatVersion {
                 case "thunderbird":
                     if (!amo_compat) return false;
                     if (!this.checkMinVersion(amo_compat.min)) return false;
-                    if (!ext_file) return true;
-                    if (ext_file.has_webextension) return false;
-                    if (ext_file.is_strict_compatibility_enabled) {
-                        if (!this.checkMaxVersion(amo_compat.max)) return false;
+                    if (ext_file) {
+                        if (ext_file.has_webextension) return false;
+                        if (ext_file.is_strict_compatibility_enabled) {
+                            if (!this.checkMaxVersion(amo_compat.max)) return false;
+                        }
                     }
                     return true;
                 default:
@@ -192,6 +197,19 @@ class FlatVersion {
                     }
                     return true;
             }
+        });
+
+        this.converter_url = `https://addonconverter.fotokraina.com/?url=${encodeURIComponent(xpi_url)}`;
+        this.convertible = ko.pureComputed(() => {
+            if (this.target != "seamonkey") return false;
+
+            const amo_compat = this.version.compatibility["seamonkey"];
+            if (amo_compat) return false;
+
+            const ext_file = this.ext_file();
+            if (ext_file && ext_file.has_webextension) return false;
+
+            return true;
         });
     }
 

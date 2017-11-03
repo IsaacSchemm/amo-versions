@@ -36,8 +36,11 @@
                     <a class="install" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
                         Add to <span data-bind="text: app_name">Firefox</span>
                     </a>
+                    <a class="install" href="#" data-bind="if: convertible, attr: { href: converter_url }">
+                        Convert Add-on
+                    </a>
                     <a class="download" href="#" data-bind="attr: { href: download_url }">
-                        Download
+                        Download .xpi
                     </a>
                 </div>
                 <div class="version-header">
