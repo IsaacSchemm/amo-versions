@@ -322,7 +322,7 @@ async function get_json(url: string) {
 
 window.onload = async () => {
     const searchParams = new URLSearchParams(location.search);
-    const id = searchParams.get('id');
+    let id = searchParams.get('id');
     const page = +(searchParams.get('page') || "1");
     const page_size = +(searchParams.get('page_size') || "10");
 
@@ -332,6 +332,11 @@ window.onload = async () => {
     }
 
     ko.applyBindings(viewModel, document.body);
+
+    if (id == "random") {
+        const search_results = await get_json(`https://addons.mozilla.org/api/v3/addons/search?lang={navigator.language}&page_size=1&sort=random&type=extension&featured=true`);
+        id = search_results.results[0].id;
+    }
 
     const addon = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`);
     viewModel.addon(addon);
