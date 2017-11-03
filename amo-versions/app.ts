@@ -349,7 +349,7 @@ window.onload = async () => {
     viewModel.versions(versions_ext);
 
     const suite_navbar_links: any = {
-        first: () => viewModel.page() > 1
+        first: viewModel.page() > 1
             ? replacePageParam(1)
             : "",
         prev: viewModel.prev_page_url(),
