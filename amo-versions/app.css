@@ -116,7 +116,7 @@ header {
         vertical-align: top;
     }
 
-    .button.back::before {
+    .button.prev::before {
         content: '\2190';
         font-size: 200%;
         font-weight: bold;

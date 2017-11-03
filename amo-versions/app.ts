@@ -48,25 +48,32 @@ interface ExtendedFileInfo {
     };
 }
 
+function replacePageParam(page: number) {
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set("page", `${page}`);
+    return `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
+}
+
 const viewModel = {
     addon: ko.observable<Addon>(),
     versions: ko.observableArray<FlatVersion>(),
     page: ko.observable<number>(),
-    last_page: ko.observable<boolean>(),
-    next_page: ko.observable<boolean>(),
+    last_page: ko.observable<number>(),
+    
+    prev_page_url: ko.pureComputed(() => ""),
+    next_page_url: ko.pureComputed(() => ""),
 
-    back: () => {
-        const searchParams = new URLSearchParams(location.search);
-        searchParams.set("page", `${viewModel.page() - 1}`);
-        location.href = `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
-    },
+    prev: () => location.href = viewModel.prev_page_url(),
 
-    next: () => {
-        const searchParams = new URLSearchParams(location.search);
-        searchParams.set("page", `${viewModel.page() + 1}`);
-        location.href = `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
-    }
+    next: () => location.href = viewModel.next_page_url()
 };
+
+viewModel.prev_page_url = ko.pureComputed(() => viewModel.page() > 1
+    ? replacePageParam(viewModel.page() - 1)
+    : "");
+viewModel.next_page_url = ko.pureComputed(() => viewModel.page() < viewModel.last_page()
+    ? replacePageParam(viewModel.page() + 1)
+    : "");
 
 const platform = (() => {
     let platform: string | null = null;
@@ -322,11 +329,30 @@ window.onload = async () => {
 
     const versions_response = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`);
     viewModel.page(page);
-    viewModel.last_page(page > 1);
-    viewModel.next_page(versions_response.next != null);
+    viewModel.last_page(Math.ceil(versions_response.count / page_size));
 
     const versions_ext = versions_response.results.map((v: AmoVersion) => new FlatVersion(v));
     viewModel.versions(versions_ext);
+
+    const suite_navbar_links: any = {
+        first: () => viewModel.page() > 1
+            ? replacePageParam(1)
+            : "",
+        prev: viewModel.prev_page_url(),
+        next: viewModel.next_page_url(),
+        last: viewModel.page() < viewModel.last_page()
+            ? replacePageParam(viewModel.last_page())
+            : ""
+    };
+    for (let key in suite_navbar_links) {
+        const value = suite_navbar_links[key];
+        if (value) {
+            const link = document.createElement("link");
+            link.rel = key;
+            link.href = value;
+            document.head.appendChild(link);
+        }
+    }
     
     viewModel.versions().map(async fv => {
         try {
