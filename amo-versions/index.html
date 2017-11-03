@@ -67,8 +67,8 @@
     </div>
 
     <footer>
-        <a href="#" data-bind="if: last_page">Previous</a>
-        <a href="#" data-bind="if: next_page">Next</a>
+        <a href="#" data-bind="if: last_page, click: back">Previous</a>
+        <a href="#" data-bind="if: next_page, click: next">Next</a>
         <p>
             This site uses data from addons.mozila.org, but is not affiliated
             with Mozilla.

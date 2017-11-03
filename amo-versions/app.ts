@@ -66,6 +66,18 @@ const viewModel = {
     page: ko.observable<number>(),
     last_page: ko.observable<boolean>(),
     next_page: ko.observable<boolean>(),
+
+    back: () => {
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set("page", `${viewModel.page() - 1}`);
+        location.href = `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
+    },
+
+    next: () => {
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set("page", `${viewModel.page() + 1}`);
+        location.href = `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
+    }
 };
 
 const platform = (() => {
@@ -132,6 +144,7 @@ window.onload = async () => {
     const searchParams = new URLSearchParams(location.search);
     const id = searchParams.get('id');
     const page = +(searchParams.get('page') || "1");
+    const page_size = +(searchParams.get('page_size') || "10");
 
     if (id == null) {
         document.getElementById("main")!.innerHTML = "Use the ?id= parameter to specify an add-on, using a slug, GUID, or numeric ID.";
@@ -144,7 +157,7 @@ window.onload = async () => {
         .then(r => r.json());
     viewModel.addon(addon);
 
-    const versions_response = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&lang={navigator.language}`)
+    const versions_response = await fetch(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`)
         .then(r => r.json());
     viewModel.page(page);
     viewModel.last_page(page > 1);
@@ -155,7 +168,7 @@ window.onload = async () => {
     
     viewModel.versions().map(async v => {
         try {
-            v.ext_file(await fetch(`https://amo-versions-lakora.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`).then(r => r.json()));
+            v.ext_file(await fetch(`https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`).then(r => r.json()));
         } catch (e) {
             console.error(e);
         }
