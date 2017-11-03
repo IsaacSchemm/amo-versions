@@ -54,6 +54,7 @@ namespace ExtendedVersionInfoApi {
 							using (var sr = new StreamReader(entry.Open())) {
 								xml = await sr.ReadToEndAsync();
 							}
+							xml = xml.Replace("em:Description>", "Description>");
 							if (xml.Contains("<RDF:Description")) {
 								xml = xml
 									.Replace("<Description", "<RDF:Description")
