@@ -48,17 +48,6 @@ interface ExtendedFileInfo {
     };
 }
 
-interface FlatVersion extends AmoVersion {
-    strings: {
-        install_url: string | null;
-        download_url: string | null;
-        released_display: string;
-    };
-    file: AmoFile;
-    ext_file: KnockoutObservable<ExtendedFileInfo | null>;
-    compatibility_display: KnockoutObservable<string>;
-}
-
 const viewModel = {
     addon: ko.observable<Addon>(),
     versions: ko.observableArray<FlatVersion>(),
@@ -97,67 +86,78 @@ const platform = (() => {
     return platform;
 })();
 
-const extendedFileInfoPromises: PromiseLike<void>[] = [];
+class FlatVersion {
+    readonly file: AmoFile;
+    readonly ext_file: KnockoutObservable<ExtendedFileInfo | null>;
+
+    readonly install_url: string;
+    readonly download_url: string;
+    readonly released_display: string;
+
+    readonly compatibility_display: KnockoutComputed<string>;
+
+    constructor(readonly version: AmoVersion) {
+        this.file = [
+            ...version.files.filter(f => f.platform == platform || f.platform == "all"),
+            ...version.files
+        ][0];
+        this.ext_file = ko.observable(null);
+
+        const xpi_url = this.file.url.replace(/src=$/, "src=version-history");
+        this.install_url = xpi_url;
+        this.download_url = xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment");
+
+        this.released_display = new Date(this.file.created).toLocaleDateString(navigator.language, {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+
+        this.compatibility_display = ko.pureComputed(() => {
+            let compatiblityStrs: string[] = [];
+
+            const applications_by_name: {
+                [key: string]: string | undefined
+            } = {
+                firefox: "Firefox",
+                android: "Firefox for Android",
+                thunderbird: "Thunderbird",
+                seamonkey: "SeaMonkey"
+                };
+
+            const applications_by_guid: {
+                [key: string]: string | undefined
+            } = {
+                "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}": "Pale Moon",
+                "toolkit@mozilla.org": "Toolkit"
+            };
+
+            for (let id in applications_by_name) {
+                const c = this.version.compatibility[id];
+                if (!c) continue;
+
+                const name = applications_by_name[id] || id;
+                compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
+            }
+
+            const f = this.ext_file();
+            if (f) {
+                for (let guid in applications_by_guid) {
+                    const c = f.targets[guid];
+                    if (!c) continue;
+
+                    const name = applications_by_guid[guid] || guid;
+                    compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
+                }
+            }
+
+            return compatiblityStrs.join(", ");
+        });
+    }
+}
 
 function extendVersionInfo(v: AmoVersion): FlatVersion {
-    const file = v.files.filter((f: any) => f.platform == platform || f.platform == "all")[0] || v.files[0];
-    
-    const xpi_url = file.url.replace(/src=$/, "src=version-history");
-
-    const applications_by_name: {
-        [key: string]: string | undefined
-    } = {
-        firefox: "Firefox",
-        android: "Firefox for Android",
-        thunderbird: "Thunderbird",
-        seamonkey: "SeaMonkey"
-    };
-
-    let compatiblityStrs: string[] = [];
-    for (let id in applications_by_name) {
-        const c = v.compatibility[id];
-        if (!c) continue;
-
-        const name = applications_by_name[id] || id;
-        compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
-    }
-    const compatibility_display = ko.observable<string>(compatiblityStrs.join(", "));
-
-    const ext_file = ko.observable<ExtendedFileInfo | null>(null);
-    ext_file.subscribe(f => {
-        if (!f) return;
-
-        const applications_by_guid: {
-            [key: string]: string | undefined
-        } = {
-            "{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}": "Pale Moon",
-            "toolkit@mozilla.org": "Toolkit"
-        };
-        
-        for (let guid in applications_by_guid) {
-            const c = f.targets[guid];
-            if (!c) continue;
-
-            const name = applications_by_guid[guid] || guid;
-            compatibility_display(`${compatibility_display()}, ${name} ${c.min} - ${c.max}`);
-        }
-    });
-
-    return {
-        ...v,
-        file: file,
-        strings: {
-            install_url: xpi_url,
-            download_url: xpi_url.replace(/downloads\/file\/([0-9]+)/, "downloads/file/$1/type:attachment"),
-            released_display: new Date(file.created).toLocaleDateString(navigator.language, {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            })
-        },
-        ext_file: ext_file,
-        compatibility_display: compatibility_display
-    };
+    return new FlatVersion(v);
 }
 
 window.onload = async () => {
@@ -183,17 +183,17 @@ window.onload = async () => {
     viewModel.last_page(page > 1);
     viewModel.next_page(versions_response.next != null);
 
-    const versions_ext = versions_response.results.map(extendVersionInfo);
+    const versions_ext = versions_response.results.map((v: AmoVersion) => new FlatVersion(v));
     viewModel.versions(versions_ext);
     
-    viewModel.versions().map(async v => {
+    viewModel.versions().map(async fv => {
         try {
-            const url = `https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${v.id}/files/${v.file.id}`;
+            const url = `https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`;
             const r = await fetch(url);
             if (r.status >= 300) {
                 throw new Error(`${url} returned status code ${r.status}: ${await r.text()}`);
             }
-            v.ext_file(await r.json());
+            fv.ext_file(await r.json());
         } catch (e) {
             console.error(e);
         }

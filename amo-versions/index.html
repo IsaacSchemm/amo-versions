@@ -33,16 +33,16 @@
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
-                    <a class="install" href="#" data-bind="if: strings.install_url, attr: { href: strings.install_url }">
+                    <a class="install" href="#" data-bind="if: install_url, attr: { href: install_url }">
                         Add to Firefox
                     </a>
-                    <a class="download" href="#" data-bind="attr: { href: strings.download_url }">
+                    <a class="download" href="#" data-bind="attr: { href: download_url }">
                         Download
                     </a>
                 </div>
                 <div class="version-header">
                     Version
-                    <span data-bind="text: version"></span>
+                    <span data-bind="text: version.version"></span>
                     <span class="tags">
                         <!-- ko with: ext_file -->
                         <span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Overlay</span>
@@ -52,12 +52,12 @@
                         <!-- /ko -->
                     </span>
                 </div>
-                <div class="released" data-bind="text: strings.released_display"></div>
+                <div class="released" data-bind="text: released_display"></div>
                 <div class="compatibility" data-bind="text: compatibility_display"></div>
-                <div class="license" data-bind="with: license">
+                <div class="license" data-bind="with: version.license">
                     <a href="#" data-bind="attr: { href: url }, text: name"></a>
                 </div>
-                <div class="release_notes" data-bind="html: release_notes"></div>
+                <div class="release_notes" data-bind="html: version.release_notes"></div>
                 <div style="clear: both"></div>
             </div>
             <!-- /ko -->
