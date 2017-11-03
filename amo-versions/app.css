@@ -70,36 +70,37 @@ header {
     float: right;
 }
 
-    .buttons > * {
-        display: block;
-        border: 0;
-        border-radius: 5px;
-        padding: 5px 10px;
-        border: 1px solid transparent;
-        text-decoration: none;
-        text-align: center;
+    .buttons > .button {
+       display: block;
     }
 
-    .buttons > :empty {
+.button {
+    display: inline-block;
+    border: 0;
+    border-radius: 5px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    text-align: center;
+    background-color: royalblue;
+    color: white;
+}
+
+    .button:empty {
         display: none;
     }
 
-    .buttons > .install {
+    .button.install {
         background-color: green;
-        color: white;
     }
 
-    .buttons > .convert {
-        background-color: royalblue;
-        color: white;
-    }
-
-    .buttons > .download {
+    .button.download {
         border-color: royalblue;
+        background-color: white;
         color: royalblue;
     }
 
-    .buttons > .install::before {
+    .button.install::before {
         content: '+';
         font-size: 200%;
         font-weight: bold;
@@ -107,7 +108,7 @@ header {
         vertical-align: top;
     }
 
-    .buttons > .download::before {
+    .button.download::before {
         content: '\2B73';
         font-size: 150%;
         font-weight: bold;
@@ -115,14 +116,23 @@ header {
         vertical-align: top;
     }
 
-    .buttons .icon {
-        display: inline-block;
+    .button.back::before {
+        content: '\2190';
+        font-size: 200%;
         font-weight: bold;
-        font-size: 150%;
-        line-height: 0;
+        line-height: 50%;
+        vertical-align: top;
     }
 
-    .buttons :not(:first-child) {
+    .button.next::after {
+        content: '\2192';
+        font-size: 200%;
+        font-weight: bold;
+        line-height: 50%;
+        vertical-align: top;
+    }
+
+    .button:not(:first-child) {
         margin-top: 5px;
     }
 

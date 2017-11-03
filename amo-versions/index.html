@@ -25,6 +25,15 @@
                 <a data-bind="attr: { href: url }, text: name"></a>
             </h3>
             <p data-bind="html: summary"></p>
+            <div>
+                <a data-bind="if: homepage, attr: { href: homepage }">Homepage</a>
+            </div>
+            <div>
+                <a data-bind="if: support_url, attr: { href: support_url }">Support Site</a>
+            </div>
+            <div>
+                <a data-bind="if: support_email, attr: { href: 'mailto:' + support_email }">Support Email</a>
+            </div>
         </div>
 
         <div id="main-column">
@@ -33,13 +42,13 @@
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
-                    <a class="install" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
+                    <a class="install button" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
                         Add to <span data-bind="text: app_name">Firefox</span>
                     </a>
-                    <a class="convert" href="#" data-bind="if: convertible, attr: { href: converter_url }">
+                    <a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
                         Convert Add-on
                     </a>
-                    <a class="download" href="#" data-bind="attr: { href: download_url }">
+                    <a class="download button" href="#" data-bind="attr: { href: download_url }">
                         Download .xpi
                     </a>
                 </div>
@@ -70,8 +79,8 @@
     </div>
 
     <footer>
-        <a href="#" data-bind="if: last_page, click: back">Previous</a>
-        <a href="#" data-bind="if: next_page, click: next">Next</a>
+        <a href="#" class="button back" data-bind="if: last_page, click: back">Previous</a>
+        <a href="#" class="button next" data-bind="if: next_page, click: next">Next</a>
         <p>
             This site uses data from addons.mozila.org, but is not affiliated
             with Mozilla.
