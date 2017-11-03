@@ -80,6 +80,10 @@ header {
         text-align: center;
     }
 
+    .buttons > :empty {
+        display: none;
+    }
+
     .buttons > .install {
         background-color: green;
         color: white;
