@@ -1,6 +1,7 @@
 ﻿body {
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
+    overflow-y: scroll;
 }
 
 header {
@@ -129,4 +130,10 @@ header h1, header span.links {
     margin-top: 10px;
     font-size: 80%;
     white-space: pre-wrap;
+}
+
+footer {
+    text-align: center;
+    border-top: 1px dotted gray;
+    font-size: 80%;
 }
