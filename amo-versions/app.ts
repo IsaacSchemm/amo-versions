@@ -123,6 +123,8 @@ class FlatVersion {
         this.compatibility_display = ko.pureComputed(() => {
             let compatiblityStrs: string[] = [];
 
+            // Get compatibility information for Mozilla-related applications from AMO.
+            // An add-on won't be listed unless it has at least one of these.
             const applications_by_name: {
                 [key: string]: string | undefined
             } = {
@@ -130,8 +132,9 @@ class FlatVersion {
                 android: "Firefox for Android",
                 thunderbird: "Thunderbird",
                 seamonkey: "SeaMonkey"
-                };
+            };
 
+            // Other applications might be listed in the install.rdf.
             const applications_by_guid: {
                 [key: string]: string | undefined
             } = {
@@ -139,6 +142,7 @@ class FlatVersion {
                 "toolkit@mozilla.org": "Toolkit"
             };
 
+            // See which Mozilla applications this works with
             for (let id in applications_by_name) {
                 const c = this.version.compatibility[id];
                 if (!c) continue;
@@ -149,6 +153,8 @@ class FlatVersion {
 
             const f = this.ext_file();
             if (f) {
+                // Data is loaded
+                // See if there are any other applications this works with
                 for (let guid in applications_by_guid) {
                     const c = f.targets[guid];
                     if (!c) continue;
@@ -176,24 +182,40 @@ class FlatVersion {
             const amo_compat = this.version.compatibility[this.target];
             switch (this.target) {
                 case "palemoon":
-                    // TODO more logic here
-                    return true;
+                    if (ext_file) {
+                        // Data is loaded
+                        if (ext_file.has_webextension) return false; // No WebExtensions support
+
+                        const rdf_compat = ext_file.targets["{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}"];
+                        if (rdf_compat) {
+                            // This add-on supports Pale Moon specifically
+                            if (!FlatVersion.checkMinVersion(rdf_compat.min)) return false; // Only supports newer versions
+                            if (ext_file.is_strict_compatibility_enabled) {
+                                if (!FlatVersion.checkMaxVersion(rdf_compat.max)) return false; // Only supports older versions
+                            }
+                            return true;
+                        }
+                    }
+
+                    // No support for Pale Moon, check Firefox
+                    return this.version.compatibility["firefox"] && !this.file.is_webextension;
                 case "seamonkey":
                 case "thunderbird":
-                    if (!amo_compat) return false;
-                    if (!this.checkMinVersion(amo_compat.min)) return false;
+                    if (!amo_compat) return false; // Not compatible
+                    if (!FlatVersion.checkMinVersion(amo_compat.min)) return false; // Only supports newer versions
                     if (ext_file) {
-                        if (ext_file.has_webextension) return false;
+                        // Data is loaded
+                        if (ext_file.has_webextension) return false; // No WebExtensions support
                         if (ext_file.is_strict_compatibility_enabled) {
-                            if (!this.checkMaxVersion(amo_compat.max)) return false;
+                            if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions
                         }
                     }
                     return true;
                 default:
-                    if (!amo_compat) return false;
-                    if (!this.checkMinVersion(amo_compat.min)) return false;
+                    if (!amo_compat) return false; // Not compatible
+                    if (!FlatVersion.checkMinVersion(amo_compat.min)) return false; // Only supports newer versions
                     if (this.version.is_strict_compatibility_enabled) {
-                        if (!this.checkMaxVersion(amo_compat.max)) return false;
+                        if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions (includes legacy add-ons in Fx 57+)
                     }
                     return true;
             }
@@ -213,14 +235,14 @@ class FlatVersion {
         });
     }
 
-    getAppVersion(): string {
+    private static getAppVersion(): string {
         const versionMatch = /SeaMonkey\/([0-9\.]+)/.exec(navigator.userAgent)
             || /PaleMoon\/([0-9\.]+)/.exec(navigator.userAgent)
             || /rv:([0-9\.]+)/.exec(navigator.userAgent);
         return versionMatch ? versionMatch[1] : "999";
     }
 
-    checkMinVersion(min: string) {
+    private static checkMinVersion(min: string) {
         const addonMinVersion = min.split('.');
         
         const myVersion = this.getAppVersion().split('.');
@@ -239,7 +261,7 @@ class FlatVersion {
         return true;
     }
 
-    checkMaxVersion(max: string) {
+    private static checkMaxVersion(max: string) {
         const addonMaxVersion = max.split('.');
 
         const myVersion = this.getAppVersion().split('.');

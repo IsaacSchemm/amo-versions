@@ -89,9 +89,14 @@ header {
         color: white;
     }
 
+    .buttons > .convert {
+        background-color: royalblue;
+        color: white;
+    }
+
     .buttons > .download {
-        border-color: dodgerblue;
-        color: dodgerblue;
+        border-color: royalblue;
+        color: royalblue;
     }
 
     .buttons > .install::before {
