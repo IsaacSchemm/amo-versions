@@ -61,6 +61,7 @@
                     Version
                     <span data-bind="text: version.version"></span>
                     <span class="tags">
+                        <span data-bind="if: !ext_file()" style="background-color: lightgray">Loading...</span>
                         <!-- ko with: ext_file -->
                         <span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Restart Required</span>
                         <span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
