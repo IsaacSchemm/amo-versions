@@ -200,14 +200,15 @@ class FlatVersion {
 
         this.target = /SeaMonkey/.test(navigator.userAgent) ? "seamonkey"
             : /PaleMoon/.test(navigator.userAgent) ? "palemoon"
-                : /Thunderbird/.test(navigator.userAgent) ? "thunderbird"
-                    : /Android/.test(navigator.userAgent) ? "android"
-                        : /Firefox/.test(navigator.userAgent) ? "firefox"
-                            : "";
-        this.app_name = /SeaMonkey/.test(navigator.userAgent) ? "SeaMonkey"
-            : /PaleMoon/.test(navigator.userAgent) ? "Pale Moon"
-                : /Thunderbird/.test(navigator.userAgent) ? "Thunderbird"
-                    : /Firefox/.test(navigator.userAgent) ? "firefox"
+                : /Goanna/.test(navigator.userAgent) ? ""
+                    : /Thunderbird/.test(navigator.userAgent) ? "thunderbird"
+                        : /Android/.test(navigator.userAgent) ? "android"
+                            : /Firefox/.test(navigator.userAgent) ? "firefox"
+                                : "";
+        this.app_name = this.target == "seamonkey" ? "SeaMonkey"
+            : this.target == "palemoon" ? "Pale Moon"
+                : this.target == "thunderbird" ? "Thunderbird"
+                    : this.target == "firefox" ? "firefox"
                         : "Browser";
 
         this.app_compatible = ko.pureComputed(() => {
