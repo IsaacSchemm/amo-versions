@@ -326,7 +326,7 @@ async function get_json(url: string) {
 }
 
 window.onload = async () => {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(location.search.substr(1));
     let id = searchParams.get('id');
     const page = +(searchParams.get('page') || "1");
     const page_size = +(searchParams.get('page_size') || "10");
