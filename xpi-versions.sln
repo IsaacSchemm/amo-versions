@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XpiVersionsApi", "ExtendedVersionInfoApi\XpiVersionsApi.csproj", "{68974A6A-702E-4AFB-B582-CCDE255D0E53}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XpiVersionsApi", "XpiVersionsApi\XpiVersionsApi.csproj", "{68974A6A-702E-4AFB-B582-CCDE255D0E53}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xpi-versions", "amo-versions\xpi-versions.csproj", "{2574F603-4B6C-4A30-BFDD-E3BC09EEDFDF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "xpi-versions", "xpi-versions\xpi-versions.csproj", "{2574F603-4B6C-4A30-BFDD-E3BC09EEDFDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
