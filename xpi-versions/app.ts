@@ -59,13 +59,14 @@ const viewModel = {
     versions: ko.observableArray<FlatVersion>(),
     page: ko.observable<number>(),
     last_page: ko.observable<number>(),
+    release_notes_shown: ko.observable(true),
     
     prev_page_url: ko.pureComputed(() => ""),
     next_page_url: ko.pureComputed(() => ""),
 
     prev: () => location.href = viewModel.prev_page_url(),
-
-    next: () => location.href = viewModel.next_page_url()
+    next: () => location.href = viewModel.next_page_url(),
+    toggle_release_notes: () => viewModel.release_notes_shown(!viewModel.release_notes_shown())
 };
 
 viewModel.prev_page_url = ko.pureComputed(() => viewModel.page() > 1
@@ -295,7 +296,6 @@ class FlatVersion {
             const mine = myVersion.length > i
                 ? myVersion[i]
                 : 0;
-            console.log(theirMin, mine, theirMin > mine);
             if (theirMin < mine) {
                 return true;
             } else if (theirMin > mine) {
@@ -355,6 +355,8 @@ window.onload = async () => {
 
     const addon = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`);
     viewModel.addon(addon);
+
+    document.title = addon.name + " - xpi-versions";
 
     const versions_response = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`);
     viewModel.page(page);

@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>TypeScript HTML App</title>
+    <title>xpi-versions</title>
     <link rel="stylesheet" href="app.css" type="text/css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/url-search-params/0.10.0/url-search-params.js" integrity="sha256-Tj0IK7neOvGa1FUIZ433DRvlP/Kv0ffbyyrgQOhdOro=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/native-promise-only/0.8.1/npo.js" integrity="sha256-o/UXdF4sFrbgV5UCIWF5ca7VMLDdplhzA4knJ4nFsc0=" crossorigin="anonymous"></script>
@@ -41,6 +41,10 @@
                 <span data-bind="text: name"></span> Version History
             </h2>
 
+            <p>
+                <a href="#" data-bind="click: toggle_release_notes, text: release_notes_shown() ? 'Hide release notes' : 'Show release notes'"></a>
+            </p>
+
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
@@ -75,8 +79,9 @@
                 <div class="license" data-bind="with: version.license">
                     <a href="#" data-bind="attr: { href: url }, text: name"></a>
                 </div>
+                <!-- ko if: $root.release_notes_shown -->
                 <div class="release_notes" data-bind="html: version.release_notes"></div>
-                <div style="clear: both"></div>
+                <!-- /ko -->
             </div>
             <!-- /ko -->
 
@@ -91,7 +96,7 @@
             This site uses data from addons.mozila.org, but is not affiliated
             with Mozilla.
             <br />
-            Last update: November 2, 2017
+            Last update: November 4, 2017
         </p>
     </footer>
 </body>
