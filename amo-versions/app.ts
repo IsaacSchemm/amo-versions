@@ -227,6 +227,10 @@ class FlatVersion {
                                 if (!FlatVersion.checkMaxVersion(rdf_compat.max)) return false; // Only supports older versions
                             }
                             return true;
+                        } else {
+                            // To the best of my knowledge, Pale Moon will only install jetpack
+                            // (PMKit) add-ons if they're targeted to Pale Moon specifically.
+                            if (ext_file.jetpack) return false;
                         }
                     }
 
@@ -290,7 +294,10 @@ class FlatVersion {
             const mine = myVersion.length > i
                 ? myVersion[i]
                 : 0;
-            if (theirMin > mine) {
+            console.log(theirMin, mine, theirMin > mine);
+            if (theirMin < mine) {
+                return true;
+            } else if (theirMin > mine) {
                 return false;
             }
         }
@@ -309,7 +316,9 @@ class FlatVersion {
             const mine = myVersion.length > i
                 ? myVersion[i]
                 : 0;
-            if (theirMax < mine) {
+            if (theirMax > mine) {
+                return true;
+            } else if (theirMax < mine) {
                 return false;
             }
         }
