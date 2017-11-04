@@ -1,4 +1,4 @@
-﻿namespace ExtendedVersionInfoApi {
+﻿namespace XpiVersionsApi {
 	public class AmoFile {
 		public int id;
 		public bool is_webextension;

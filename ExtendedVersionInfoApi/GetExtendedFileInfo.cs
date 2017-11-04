@@ -8,7 +8,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExtendedVersionInfoApi {
+namespace XpiVersionsApi {
 	public static class GetExtendedFileInfo {
 		private static HttpResponseMessage Serialize(object o) {
 			return new HttpResponseMessage {

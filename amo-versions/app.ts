@@ -386,7 +386,7 @@ window.onload = async () => {
     viewModel.versions().map(async fv => {
         try {
             if (fv.ext_file() == null) {
-                fv.ext_file(await get_json(`https://amo-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`));
+                fv.ext_file(await get_json(`https://xpi-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`));
             }
         } catch (e) {
             console.error(e);

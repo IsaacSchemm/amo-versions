@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 
-namespace ExtendedVersionInfoApi {
+namespace XpiVersionsApi {
 	public class DescriptionTag<T> where T : class {
 		[XmlElement("Description", Namespace = "http://www.w3.org/1999/02/22-rdf-syntax-ns#")]
 		public T Description;

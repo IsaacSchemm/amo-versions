@@ -8,20 +8,20 @@ using System.Runtime.Caching;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace ExtendedVersionInfoApi {
+namespace XpiVersionsApi {
 	public static class Core {
 		private static MemoryCache cache = MemoryCache.Default;
 
 		public static HttpWebRequest CreateRequest(string url) {
 			var request = WebRequest.CreateHttp(url);
-			request.UserAgent = "ExtendedVersionInfoApi/1.0 (https://github.com/IsaacSchemm/amo-versions)";
+			request.UserAgent = "xpi-versions/1.0 (https://github.com/IsaacSchemm/xpi-versions)";
 			request.Accept = "application/json";
 			return request;
 		}
 
 		public static async Task<AmoVersion> GetVersion(string addon_id, int version_id) {
 			string url = $"https://addons.mozilla.org/api/v3/addons/addon/{addon_id}/versions/{version_id}";
-			using (var response = await Core.CreateRequest(url).GetResponseAsync()) {
+			using (var response = await CreateRequest(url).GetResponseAsync()) {
 				using (var sr = new StreamReader(response.GetResponseStream())) {
 					return JsonConvert.DeserializeObject<AmoVersion>(await sr.ReadToEndAsync());
 				}

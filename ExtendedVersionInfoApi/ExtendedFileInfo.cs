@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ExtendedVersionInfoApi {
+namespace XpiVersionsApi {
 	public class ExtendedFileInfo {
 		public int id;
 		public bool bootstrapped;
