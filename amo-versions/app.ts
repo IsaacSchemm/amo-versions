@@ -49,7 +49,7 @@ interface ExtendedFileInfo {
 }
 
 function replacePageParam(page: number) {
-    const searchParams = new URLSearchParams(location.search);
+    const searchParams = new URLSearchParams(location.search.substr(1));
     searchParams.set("page", `${page}`);
     return `${location.protocol}//${location.host}${location.pathname}?${searchParams}`;
 }
