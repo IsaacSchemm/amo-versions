@@ -44,3 +44,11 @@ Supported browsers
     version of Firefox.
 * **Other browsers**
   * The install button will always be shown, although it may not work.
+
+API
+---
+
+To extract information that addons.mozilla.org doesn't keep track of,
+xpi-versions makes a call to an Azure Function, which downloads the .xpi file
+from Mozilla and returns the relevant information. This info is cached in
+memory for a while on the server. See XpiVersionsApi for more details.
