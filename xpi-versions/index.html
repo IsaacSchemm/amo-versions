@@ -24,7 +24,7 @@
             <h3>
                 <a data-bind="attr: { href: url }, text: name"></a>
             </h3>
-            <p data-bind="html: summary"></p>
+            <p data-bind="html: summary || description"></p>
             <div>
                 <a data-bind="if: homepage, attr: { href: homepage }">Homepage</a>
             </div>
@@ -41,13 +41,26 @@
                 <span data-bind="text: name"></span> Version History
             </h2>
 
-            <p>
+            <p data-bind="if: versions().length">
                 <a href="#" data-bind="click: toggle_release_notes, text: release_notes_shown() ? 'Hide release notes' : 'Show release notes'"></a>
+            </p>
+
+            <p data-bind="if: !versions().length">
+                No version history is available for this add-on.
             </p>
 
             <!-- ko foreach: versions -->
             <div class="version">
                 <div class="buttons">
+                    <!-- ko if: addon.type == 'search' -->
+                    <a class="install button" href="#" data-bind="attr: { href: install_url }, click: addSearchProvider">
+                        Add to <span data-bind="text: app_name">Firefox</span>
+                    </a>
+                    <a class="download button" href="#" data-bind="attr: { href: download_url }">
+                        Download .xml
+                    </a>
+                    <!-- /ko -->
+                    <!-- ko if: addon.type != 'search' -->
                     <a class="install button" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
                         Add to <span data-bind="text: app_name">Firefox</span>
                     </a>
@@ -60,6 +73,7 @@
                     <div class="not-compatible" data-bind="if: !app_compatible() && !convertible()">
                         This add-on is not compatible with your version of <span data-bind="text: app_name">Firefox</span>.
                     </div>
+                    <!-- /ko -->
                 </div>
                 <div class="version-header">
                     Version

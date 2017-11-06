@@ -1,7 +1,7 @@
 ﻿interface Addon {
     name: string;
     summary: string | null;
-    type: string;
+    type: "theme" | "search" | "persona" | "language" | "extension" | "dictionary";
 }
 
 interface AmoVersion {
@@ -212,10 +212,14 @@ class FlatVersion {
         this.app_name = this.target == "seamonkey" ? "SeaMonkey"
             : this.target == "palemoon" ? "Pale Moon"
                 : this.target == "thunderbird" ? "Thunderbird"
-                    : this.target == "firefox" ? "firefox"
+                    : this.target == "firefox" ? "Firefox"
                         : "Browser";
 
         this.app_compatible = ko.pureComputed(() => {
+            if (addon.type == "dictionary") return true;
+            if (addon.type == "persona") return true;
+            if (addon.type == "search") return "AddSearchProvider" in window.external;
+
             const ext_file = this.ext_file();
             const amo_compat = this.version.compatibility[this.target];
             switch (this.target) {
@@ -271,6 +275,7 @@ class FlatVersion {
 
         this.converter_url = `https://addonconverter.fotokraina.com/?url=${encodeURIComponent(xpi_url)}`;
         this.convertible = ko.pureComputed(() => {
+            if (this.addon.type != "extension") return false;
             if (this.target != "seamonkey") return false;
 
             const amo_compat = this.version.compatibility["seamonkey"];
@@ -281,6 +286,10 @@ class FlatVersion {
 
             return true;
         });
+    }
+
+    addSearchProvider() {
+        (window.external as any).AddSearchProvider(this.install_url);
     }
 
     private static getAppVersion(): string {
@@ -392,17 +401,19 @@ window.onload = async () => {
     }
     
     viewModel.versions().map(async fv => {
-        if (fv.ext_file() == null) {
-            fv.loading(true);
-            try {
-                const p1 = get_json(`https://xpi-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`);
-                const p2 = new Promise<void>(r => setTimeout(r, 10000));
-                await Promise.race([p1, p2]);
-                fv.ext_file(await p1);
-            } catch (e) {
-                console.error(e);
+        if (fv.addon.type == "extension" || fv.addon.type == "theme" || fv.addon.type == "language") {
+            if (fv.ext_file() == null) {
+                fv.loading(true);
+                try {
+                    const p1 = get_json(`https://xpi-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`);
+                    const p2 = new Promise<void>(r => setTimeout(r, 10000));
+                    await Promise.race([p1, p2]);
+                    fv.ext_file(await p1);
+                } catch (e) {
+                    console.error(e);
+                }
+                fv.loading(false);
             }
-            fv.loading(false);
         }
     });
 };
