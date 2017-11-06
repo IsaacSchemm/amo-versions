@@ -1,6 +1,7 @@
 ﻿interface Addon {
     name: string;
     summary: string | null;
+    type: string;
 }
 
 interface AmoVersion {
@@ -111,7 +112,7 @@ class FlatVersion {
     readonly converter_url: string;
     readonly convertible: KnockoutComputed<boolean>;
 
-    constructor(readonly version: AmoVersion) {
+    constructor(readonly addon: Addon, readonly version: AmoVersion) {
         this.file = [
             ...version.files.filter(f => f.platform == platform || f.platform == "all"),
             ...version.files
@@ -242,6 +243,9 @@ class FlatVersion {
                 case "thunderbird":
                     if (!amo_compat) return false; // Not compatible
                     if (!FlatVersion.checkMinVersion(amo_compat.min)) return false; // Only supports newer versions
+                    if (addon.type == "language") {
+                        if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions
+                    }
                     if (ext_file) {
                         // Data is loaded
                         if (ext_file.has_webextension) return false; // No WebExtensions support
@@ -254,7 +258,7 @@ class FlatVersion {
                 case "android":
                     if (!amo_compat) return false; // Not compatible
                     if (!FlatVersion.checkMinVersion(amo_compat.min)) return false; // Only supports newer versions
-                    if (this.version.is_strict_compatibility_enabled) {
+                    if (addon.type == "language" || this.version.is_strict_compatibility_enabled) {
                         if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions (includes legacy add-ons in Fx 57+)
                     }
                     return true;
@@ -362,7 +366,7 @@ window.onload = async () => {
     viewModel.page(page);
     viewModel.last_page(Math.ceil(versions_response.count / page_size));
 
-    const versions_ext = versions_response.results.map((v: AmoVersion) => new FlatVersion(v));
+    const versions_ext = versions_response.results.map((v: AmoVersion) => new FlatVersion(addon, v));
     viewModel.versions(versions_ext);
 
     const suite_navbar_links: any = {
