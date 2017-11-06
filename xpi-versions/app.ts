@@ -98,6 +98,7 @@ const platform = (() => {
 class FlatVersion {
     readonly file: AmoFile;
     readonly ext_file: KnockoutObservable<ExtendedFileInfo | null>;
+    readonly loading: KnockoutObservable<boolean>;
 
     readonly install_url: string;
     readonly download_url: string;
@@ -118,6 +119,7 @@ class FlatVersion {
             ...version.files
         ][0];
         this.ext_file = ko.observable(null);
+        this.loading = ko.observable(false);
 
         if (this.file.is_webextension) {
             // We already know what these fields will be
@@ -390,12 +392,17 @@ window.onload = async () => {
     }
     
     viewModel.versions().map(async fv => {
-        try {
-            if (fv.ext_file() == null) {
-                fv.ext_file(await get_json(`https://xpi-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`));
+        if (fv.ext_file() == null) {
+            fv.loading(true);
+            try {
+                const p1 = get_json(`https://xpi-versions.azurewebsites.net/api/addon/${addon.id}/versions/${fv.version.id}/files/${fv.file.id}`);
+                const p2 = new Promise<void>(r => setTimeout(r, 10000));
+                await Promise.race([p1, p2]);
+                fv.ext_file(await p1);
+            } catch (e) {
+                console.error(e);
             }
-        } catch (e) {
-            console.error(e);
+            fv.loading(false);
         }
     });
 };
