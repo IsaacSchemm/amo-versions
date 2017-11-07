@@ -238,6 +238,9 @@ class FlatVersion {
                             // To the best of my knowledge, Pale Moon will only install jetpack
                             // (PMKit) add-ons if they're targeted to Pale Moon specifically.
                             if (ext_file.jetpack) return false;
+                            // Some hybrid add-ons might work without the WebExtensions part (NoScript?),
+                            // but if Pale Moon isn't listed in install.rdf, assume it won't work
+                            if (ext_file.has_webextension) return false;
                         }
                     }
 
@@ -279,6 +282,8 @@ class FlatVersion {
             const amo_compat = this.version.compatibility["seamonkey"];
             if (amo_compat) return false;
 
+            // Some hybrid add-ons might work without the WebExtensions part (NoScript?),
+            // but if SeaMonkey isn't listed in install.rdf, assume it won't work
             const ext_file = this.ext_file();
             if (ext_file && ext_file.has_webextension) return false;
 
