@@ -113,6 +113,8 @@ class FlatVersion {
     readonly converter_url: string;
     readonly convertible: KnockoutComputed<boolean>;
 
+    readonly show_hybrid_warning: KnockoutComputed<boolean>;
+
     constructor(readonly addon: Addon, readonly version: AmoVersion) {
         this.file = [
             ...version.files.filter(f => f.platform == platform || f.platform == "all"),
@@ -175,14 +177,6 @@ class FlatVersion {
                 const c = this.version.compatibility[id];
                 if (!c) continue;
 
-                if (id == "thunderbird" || id == "seamonkey") {
-                    // Some add-ons with embedded WebExtensions incorrectly
-                    // declare compatibility with SM/TB.
-                    if (ext_file && ext_file.has_webextension) {
-                        continue;
-                    }
-                }
-
                 const name = applications_by_name[id] || id;
                 compatiblityStrs.push(`${name} ${c.min} - ${c.max}`);
             }
@@ -215,6 +209,11 @@ class FlatVersion {
                     : this.target == "firefox" ? "Firefox"
                         : "Browser";
 
+        this.show_hybrid_warning = ko.pureComputed(() => {
+            const f = this.ext_file();
+            return f != null && f.has_webextension && ["seamonkey", "palemoon", "thunderbird"].indexOf(this.target) >= 0;
+        })
+
         this.app_compatible = ko.pureComputed(() => {
             if (addon.type == "dictionary") return true;
             if (addon.type == "persona") return true;
@@ -224,10 +223,9 @@ class FlatVersion {
             const amo_compat = this.version.compatibility[this.target];
             switch (this.target) {
                 case "palemoon":
-                    if (ext_file) {
-                        // Data is loaded
-                        if (ext_file.has_webextension) return false; // No WebExtensions support
+                    if (this.file.is_webextension) return false; // No WebExtensions support
 
+                    if (ext_file) {
                         const rdf_compat = ext_file.targets["{8de7fcbb-c55c-4fbe-bfc5-fc555c87dbc4}"];
                         if (rdf_compat) {
                             // This add-on supports Pale Moon specifically
@@ -252,9 +250,9 @@ class FlatVersion {
                     if (addon.type == "language") {
                         if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions
                     }
+                    if (this.file.is_webextension) return false; // No WebExtensions support
                     if (ext_file) {
                         // Data is loaded
-                        if (ext_file.has_webextension) return false; // No WebExtensions support
                         if (ext_file.is_strict_compatibility_enabled) {
                             if (!FlatVersion.checkMaxVersion(amo_compat.max)) return false; // Only supports older versions
                         }

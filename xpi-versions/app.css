@@ -168,6 +168,11 @@ header {
     font-size: 70%;
 }
 
+.hybrid_warning:not(:empty){
+    margin-top: 10px;
+    font-size: 80%;
+}
+
 .release_notes:not(:empty) {
     margin-top: 10px;
     font-size: 80%;

@@ -101,6 +101,9 @@
                     <div class="license" data-bind="with: version.license">
                         <a href="#" data-bind="attr: { href: url }, text: name"></a>
                     </div>
+                    <div class="hybrid_warning" data-bind="if: show_hybrid_warning">
+                        This add-on contains an embedded WebExtension. If it does not work, you may need to use an older version.
+                    </div>
                     <!-- ko if: $root.release_notes_shown -->
                     <div class="release_notes" data-bind="html: version.release_notes"></div>
                     <!-- /ko -->
