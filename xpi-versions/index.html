@@ -20,6 +20,14 @@
     </header>
 
     <div id="main">
+        <!-- ko if: addon() && addon().type == 'persona' -->
+        <h2>
+            <img data-bind="attr: { src: addon().theme_data.previewURL }" />
+            <br />
+            <a href="#" data-bind="attr: { href: addon().url }, text: addon().name"></a>
+        </h2>
+        <!-- /ko -->
+        <!-- ko if: !addon() || addon().type != 'persona' -->
         <div id="summary" data-bind="with: addon">
             <h3>
                 <a data-bind="attr: { href: url }, text: name"></a>
@@ -41,12 +49,8 @@
                 <span data-bind="text: name"></span> Version History
             </h2>
 
-            <p data-bind="if: versions().length">
+            <p>
                 <a href="#" data-bind="click: toggle_release_notes, text: release_notes_shown() ? 'Hide release notes' : 'Show release notes'"></a>
-            </p>
-
-            <p data-bind="if: !versions().length">
-                No version history is available for this add-on.
             </p>
 
             <!-- ko foreach: versions -->
@@ -98,9 +102,8 @@
                 <!-- /ko -->
             </div>
             <!-- /ko -->
-
-            <div id="content"></div>
         </div>
+        <!-- /ko -->
     </div>
 
     <footer>
