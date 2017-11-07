@@ -60,7 +60,7 @@ const viewModel = {
     versions: ko.observableArray<FlatVersion>(),
     page: ko.observable<number>(),
     last_page: ko.observable<number>(),
-    release_notes_shown: ko.observable(true),
+    release_notes_shown: ko.observable(false),
     
     prev_page_url: ko.pureComputed(() => ""),
     next_page_url: ko.pureComputed(() => ""),

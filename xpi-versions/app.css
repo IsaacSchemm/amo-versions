@@ -105,6 +105,7 @@ header {
         border-color: royalblue;
         background-color: white;
         color: royalblue;
+        font-size: 80%;
     }
 
     .button.install::before {
