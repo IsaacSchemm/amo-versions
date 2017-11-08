@@ -367,16 +367,16 @@ window.onload = async () => {
     ko.applyBindings(viewModel, document.body);
 
     if (id == "random") {
-        const search_results = await get_json(`https://addons.mozilla.org/api/v3/addons/search?lang={navigator.language}&page_size=1&sort=random&type=extension&featured=true`);
+        const search_results = await get_json(`https://addons.mozilla.org/api/v3/addons/search?lang=${navigator.language}&page_size=1&sort=random&type=extension&featured=true`);
         id = search_results.results[0].id;
     }
 
-    const addon = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang={navigator.language}`);
+    const addon = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}?lang=${navigator.language}`);
     viewModel.addon(addon);
 
     document.title = addon.name + " - xpi-versions";
 
-    const versions_response = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang={navigator.language}`);
+    const versions_response = await get_json(`https://addons.mozilla.org/api/v3/addons/addon/${id}/versions?page=${page}&page_size=${page_size}&lang=${navigator.language}`);
     viewModel.page(page);
     viewModel.last_page(Math.ceil(versions_response.count / page_size));
 
