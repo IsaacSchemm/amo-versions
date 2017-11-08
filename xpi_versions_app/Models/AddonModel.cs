@@ -18,12 +18,12 @@ namespace xpi_versions_app.Models {
 
 		private AddonModel() { }
 
-		public static async Task<AddonModel> CreateAsync(string id, int page, int page_size, string lang) {
+		public static async Task<AddonModel> CreateAsync(string id, int page, int page_size, string platform, string lang) {
 			var t1 = Core.GetAddon(id, lang);
 			var versions = await Core.GetVersions(id, page, page_size, lang);
 			var addon = await t1;
 
-			var flat = await Task.WhenAll(versions.results.Select(v => FlatVersion.GetAsync(addon, v, "windows")));
+			var flat = await Task.WhenAll(versions.results.Select(v => FlatVersion.GetAsync(addon, v, platform)));
 
 			return new AddonModel {
 				Addon = addon,
