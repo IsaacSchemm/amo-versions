@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -45,7 +46,7 @@ namespace xpi_versions_app.Extended {
 
 		private FlatVersion() { }
 
-		public static async Task<FlatVersion> GetAsync(Addon addon, Version version, string platform) {
+		public static async Task<FlatVersion> GetAsync(Addon addon, Version version, string platform, CloudBlobClient blobClient = null) {
 			var file = version.files.Where(f => f.platform == platform).FirstOrDefault()
 				?? version.files.Where(f => f.platform == "all").FirstOrDefault()
 				?? version.files.First();
@@ -59,7 +60,7 @@ namespace xpi_versions_app.Extended {
 					jetpack = false,
 					targets = new Dictionary<string, ExtendedFileInfoTarget>()
 				}
-				: await Core.GetInformation(file);
+				: await Core.GetInformation(file, blobClient);
 			return new FlatVersion {
 				Addon = addon,
 				ExtendedFileInfo = extendedFileInfo,

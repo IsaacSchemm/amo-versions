@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -18,12 +19,12 @@ namespace xpi_versions_app.Models {
 
 		private AddonModel() { }
 
-		public static async Task<AddonModel> CreateAsync(string id, int page, int page_size, string platform, string lang) {
+		public static async Task<AddonModel> CreateAsync(string id, int page, int page_size, string platform, string lang, CloudBlobClient blobClient) {
 			var t1 = Core.GetAddon(id, lang);
 			var versions = await Core.GetVersions(id, page, page_size, lang);
 			var addon = await t1;
 
-			var flat = await Task.WhenAll(versions.results.Select(v => FlatVersion.GetAsync(addon, v, platform)));
+			var flat = await Task.WhenAll(versions.results.Select(v => FlatVersion.GetAsync(addon, v, platform, blobClient)));
 
 			return new AddonModel {
 				Addon = addon,

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.WindowsAzure.Storage.Blob;
+using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -43,7 +44,20 @@ namespace xpi_versions_app.Extended {
 			}
 		}
 
-		public static async Task<ExtendedFileInfo> GetInformation(AMO.File file) {
+		public static async Task<ExtendedFileInfo> GetInformation(AMO.File file, CloudBlobClient blobClient = null) {
+			if (blobClient != null) {
+				// Get container
+				var container = blobClient.GetContainerReference("extendedfileinfo-v1-addons-mozilla-org");
+				await container.CreateIfNotExistsAsync();
+
+				// Get blob
+				var blockBlob = container.GetBlockBlobReference($"a{file.id}.json");
+				if (await blockBlob.ExistsAsync()) {
+					string json = await blockBlob.DownloadTextAsync();
+					return JsonConvert.DeserializeObject<ExtendedFileInfo>(json);
+				}
+			}
+
 			var obj = new ExtendedFileInfo {
 				id = file.id
 			};
@@ -93,6 +107,16 @@ namespace xpi_versions_app.Extended {
 							|| zip.GetEntry("package.json") != null;
 					}
 				}
+			}
+
+			if (blobClient != null) {
+				// Get container
+				var container = blobClient.GetContainerReference("extendedfileinfo-v1-addons-mozilla-org");
+				await container.CreateIfNotExistsAsync();
+
+				// Get blob
+				var blockBlob = container.GetBlockBlobReference($"a{file.id}.json");
+				await blockBlob.UploadTextAsync(JsonConvert.SerializeObject(obj));
 			}
 
 			return obj;
