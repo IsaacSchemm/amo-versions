@@ -4,57 +4,57 @@
 	@Model.Addon.name Version History
 </h2>
 
-<!-- ko foreach: versions -->
-<div class="version" data-bind="css: { app_compatible: app_compatible, convertible: convertible }">
-	<div class="buttons">
-		<!-- ko if: addon.type == 'search' -->
-		<a class="install button" href="#" data-bind="attr: { href: install_url }, click: addSearchProvider">
-			Add to <span data-bind="text: app_name">Firefox</span>
-		</a>
-		<a class="download button" href="#" data-bind="attr: { href: download_url }">
-			Download .xml
-		</a>
-		<!-- /ko -->
-		<!-- ko if: addon.type != 'search' -->
-		<a class="install button" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
-			Add to <span data-bind="text: app_name">Firefox</span>
-		</a>
-		<a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
-			Convert Add-on
-		</a>
-		<div class="not-compatible" data-bind="if: !app_compatible() && !convertible()">
-			This add-on is not compatible with your version of <span data-bind="text: app_name">Firefox</span>.
-			<a href="#" data-bind="attr: { href: download_url }">
-				Download anyway
+@foreach (var version in Model.Versions) {
+	<div class="version" data-bind="css: { app_compatible: app_compatible, convertible: convertible }">
+		<div class="buttons">
+			<!-- ko if: addon.type == 'search' -->
+			<a class="install button" href="#" data-bind="attr: { href: install_url }, click: addSearchProvider">
+				Add to <span data-bind="text: app_name">Firefox</span>
 			</a>
+			<a class="download button" href="#" data-bind="attr: { href: download_url }">
+				Download .xml
+			</a>
+			<!-- /ko -->
+			<!-- ko if: addon.type != 'search' -->
+			<a class="install button" href="#" data-bind="if: app_compatible, attr: { href: install_url }">
+				Add to <span data-bind="text: app_name">Firefox</span>
+			</a>
+			<a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
+				Convert Add-on
+			</a>
+			<div class="not-compatible" data-bind="if: !app_compatible() && !convertible()">
+				This add-on is not compatible with your version of <span data-bind="text: app_name">Firefox</span>.
+				<a href="#" data-bind="attr: { href: download_url }">
+					Download anyway
+				</a>
+			</div>
+			<a class="download button" href="#" data-bind="if: app_compatible() || convertible(), attr: { href: download_url }">
+				Download .xpi
+			</a>
+			<!-- /ko -->
 		</div>
-		<a class="download button" href="#" data-bind="if: app_compatible() || convertible(), attr: { href: download_url }">
-			Download .xpi
-		</a>
-		<!-- /ko -->
+		<div class="version-main">
+			<div class="version-header">
+				Version
+				<span>@version.version</span>
+				<span class="tags">
+					<span data-bind="if: !ext_file() && loading()" style="background-color: lightgray">Loading...</span>
+					<!-- ko with: ext_file -->
+					<span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Restart Required</span>
+					<span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
+					<span data-bind="if: jetpack" style="background-color: darkcyan">Jetpack</span>
+					<span data-bind="if: has_webextension" style="background-color: red">WebExtensions</span>
+					<!-- /ko -->
+				</span>
+			</div>
+			<div class="released" data-bind="text: released_display"></div>
+			<div class="compatibility" data-bind="text: compatibility_display"></div>
+			<div class="license">
+				<a href="@version.license.url">@version.license.name</a>
+			</div>
+			<!-- ko if: $root.release_notes_shown -->
+			<div class="release_notes">@Html.Raw(version.release_notes)</div>
+			<!-- /ko -->
+		</div>
 	</div>
-	<div class="version-main">
-		<div class="version-header">
-			Version
-			<span data-bind="text: version.version"></span>
-			<span class="tags">
-				<span data-bind="if: !ext_file() && loading()" style="background-color: lightgray">Loading...</span>
-				<!-- ko with: ext_file -->
-				<span data-bind="if: !bootstrapped && !$parent.file.is_webextension" style="background-color: darkgreen">Restart Required</span>
-				<span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
-				<span data-bind="if: jetpack" style="background-color: darkcyan">Jetpack</span>
-				<span data-bind="if: has_webextension" style="background-color: red">WebExtensions</span>
-				<!-- /ko -->
-			</span>
-		</div>
-		<div class="released" data-bind="text: released_display"></div>
-		<div class="compatibility" data-bind="text: compatibility_display"></div>
-		<div class="license" data-bind="with: version.license">
-			<a href="#" data-bind="attr: { href: url }, text: name"></a>
-		</div>
-		<!-- ko if: $root.release_notes_shown -->
-		<div class="release_notes" data-bind="html: version.release_notes"></div>
-		<!-- /ko -->
-	</div>
-</div>
-<!-- /ko -->
+}
