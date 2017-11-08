@@ -1,52 +1,36 @@
 ﻿<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - xpi_versions_app</title>
 
-    <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<title>@(ViewBag.Title ?? "xpi-verions")</title>
+	<link rel="stylesheet" href="css/site.css" type="text/css" />
 </head>
 <body>
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">xpi_versions_app</a>
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li><a asp-area="" asp-controller="Home" asp-action="Index">Home</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; 2017 - xpi_versions_app</p>
-        </footer>
-    </div>
+	<header>
+		<h1>xpi-versions</h1>
+		<span class="links">
+			<a href="https://github.com/IsaacSchemm/xpi-versions">View on GitHub</a>
+		</span>
+	</header>
 
-    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-            crossorigin="anonymous"
-            integrity="sha384-K+ctZQ+LL8q6tP7I94W+qzQsfRV2a+AfHIi9k8z8l9ggpc8X+Ytst4yBo/hH+8Fk">
-    </script>
-    <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.7/bootstrap.min.js"
-            crossorigin="anonymous"
-            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa">
-    </script>
-    <script src="~/js/site.min.js" asp-append-version="true"></script>
+	<div id="main">
+		@RenderBody()
+	</div>
 
-    @RenderSection("Scripts", required: false)
+	<footer>
+		@if (ViewBag.PreviousUrl != null) {
+			<a href="@ViewBag.PreviousUrl" class="button prev">Previous</a>
+		}
+		@if (ViewBag.NextUrl != null) {
+			<a href="@ViewBag.NextUrl" class="button next">Next</a>
+		}
+		<p>
+			This site uses data from addons.mozila.org, but is not affiliated
+			with Mozilla.
+			<br />
+			Last update: November 8, 2017
+		</p>
+	</footer>
 </body>
 </html>

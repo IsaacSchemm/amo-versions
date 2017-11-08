@@ -8,11 +8,15 @@ using xpi_versions_app.Models;
 
 namespace xpi_versions_app.Controllers
 {
-    public class HomeController : Controller
+    public class AddonController : Controller
     {
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string id = null, string lang = null)
         {
-            return View();
+			if (id == null) {
+				return View("NoId");
+			} else {
+				return View(await AddonModel.CreateAsync(id, lang));
+			}
         }
 
         public IActionResult Error()
