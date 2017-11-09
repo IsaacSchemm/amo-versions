@@ -62,9 +62,11 @@
 			</div>
 			<div class="released">@info.ReleasedStr</div>
 			<div class="compatibility">@string.Join(", ", info.CompatibilityStrs())</div>
-			<div class="license">
-				<a href="@info.Version.license.url">@info.Version.license.name</a>
-			</div>
+			@if (info.Version.license != null) {
+				<div class="license">
+					<a href="@info.Version.license.url">@info.Version.license.name</a>
+				</div>
+			}
 			<!-- ko if: $root.release_notes_shown -->
 			<div class="release_notes">@Html.Raw(info.Version.release_notes)</div>
 			<!-- /ko -->

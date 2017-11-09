@@ -13,9 +13,9 @@ namespace xpi_versions_app.Models {
 
 		public IEnumerable<FlatVersion> Versions { get; private set; }
 
-		//public int Page { get; set; }
+		public int Page { get; set; }
 
-		//public int PageSize { get; set; }
+		public int MaxPage { get; set; }
 
 		private AddonModel() { }
 
@@ -28,7 +28,9 @@ namespace xpi_versions_app.Models {
 
 			return new AddonModel {
 				Addon = addon,
-				Versions = flat
+				Versions = flat,
+				Page = page,
+				MaxPage = (versions.count - 1) / page_size
 			};
 		}
 	}

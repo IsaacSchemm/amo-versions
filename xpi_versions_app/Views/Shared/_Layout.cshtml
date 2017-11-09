@@ -4,7 +4,19 @@
 <head>
 	<meta charset="utf-8" />
 	<title>@(ViewBag.Title ?? "xpi-versions")</title>
-	<link rel="stylesheet" href="css/site.css" type="text/css" />
+	<link rel="stylesheet" href="/css/site.css" type="text/css" />
+	@if (ViewBag.FirstUrl != null) {
+		<link rel="first" href="@ViewBag.FirstUrl" />
+	}
+	@if (ViewBag.PreviousUrl != null) {
+		<link rel="prev" href="@ViewBag.PreviousUrl" />
+	}
+	@if (ViewBag.NextUrl != null) {
+		<link rel="next" href="@ViewBag.NextUrl" />
+	}
+	@if (ViewBag.LastUrl != null) {
+		<link rel="last" href="@ViewBag.LastUrl" />
+	}
 </head>
 <body>
 	<header>
