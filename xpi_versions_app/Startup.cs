@@ -46,7 +46,7 @@ namespace xpi_versions_app
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Addon}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

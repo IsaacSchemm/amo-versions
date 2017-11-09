@@ -12,6 +12,7 @@ namespace xpi_versions_app.Controllers
 {
     public class AddonController : Controller
     {
+		[Route("addon/{id}")]
 		public async Task<IActionResult> Index(string id = null, int page = 1, int page_size = 10, string lang = null)
         {
 			string ua = Request.Headers["User-Agent"].ToString() ?? "";
