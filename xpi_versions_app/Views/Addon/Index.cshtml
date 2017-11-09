@@ -16,7 +16,7 @@
 				</a>
 			} else {
 				bool app_compatible = info.IsAppCompatible();
-				bool convertible = true;
+				bool convertible = info.IsConvertible();
 				if (app_compatible) {
 					<a class="install button" href="@info.InstallUrl">
 						Add to @info.AppName

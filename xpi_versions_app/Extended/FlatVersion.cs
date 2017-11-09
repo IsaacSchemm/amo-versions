@@ -108,6 +108,31 @@ namespace xpi_versions_app.Extended {
 			}
 		}
 
+		public bool IsConvertible() {
+			if (Addon.type != "extension") return false;
+			if (Target != "seamonkey") return false;
+			
+			if (Version.compatibility.Keys.Contains("seamonkey")) return false;
+
+			// Some hybrid add-ons might work without the WebExtensions part (NoScript?),
+			// but if SeaMonkey isn't listed in install.rdf, assume it won't work
+			if (ExtendedFileInfo.has_webextension) return false;
+
+			return true;
+		}
+
+		private static int GetInt(string s) {
+			int total = 0;
+			foreach (char c in s) {
+				if (c >= '0' && c <= '9') {
+					total = 10 * total + c - '0';
+				} else {
+					break;
+				}
+			}
+			return total;
+		}
+
 		private bool checkMinVersion(string min) {
 			string[] addonMinVersion = min.Split('.');
 
@@ -116,9 +141,9 @@ namespace xpi_versions_app.Extended {
 			for (int i = 0; i < addonMinVersion.Length; i++) {
 				double theirMin = addonMinVersion[i] == "*"
 					? 0
-					: int.Parse(addonMinVersion[i]);
+					: GetInt(addonMinVersion[i]);
 				double mine = myVersion.Length > i
-					? int.Parse(myVersion[i])
+					? GetInt(myVersion[i])
 					: 0;
 				if (theirMin < mine) {
 					return true;
@@ -137,9 +162,9 @@ namespace xpi_versions_app.Extended {
 			for (int i = 0; i < addonMaxVersion.Length; i++) {
 				double theirMax = addonMaxVersion[i] == "*"
 					? double.PositiveInfinity
-					: int.Parse(addonMaxVersion[i]);
+					: GetInt(addonMaxVersion[i]);
 				double mine = myVersion.Length > i
-					? int.Parse(myVersion[i])
+					? GetInt(myVersion[i])
 					: 0;
 				if (theirMax > mine) {
 					return true;
