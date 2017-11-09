@@ -14,35 +14,7 @@ namespace xpi_versions_app.Extended {
 		public static HttpWebRequest CreateRequest(string url) {
 			var request = WebRequest.CreateHttp(url);
 			request.UserAgent = "xpi_versions_app/1.0 (https://github.com/IsaacSchemm/xpi-versions)";
-			request.Accept = "application/json";
 			return request;
-		}
-
-		public static async Task<Addon> GetAddon(string addon_id, string lang) {
-			string url = $"https://addons.mozilla.org/api/v3/addons/addon/{addon_id}?lang={lang ?? "en_US"}";
-			using (var response = await CreateRequest(url).GetResponseAsync()) {
-				using (var sr = new StreamReader(response.GetResponseStream())) {
-					return JsonConvert.DeserializeObject<Addon>(await sr.ReadToEndAsync());
-				}
-			}
-		}
-
-		public static async Task<PagedResult<Version>> GetVersions(string addon_id, int page, int page_size, string lang) {
-			string url = $"https://addons.mozilla.org/api/v3/addons/addon/{addon_id}/versions?page={page}&page_size={page_size}&lang={lang ?? "en_US"}";
-			using (var response = await CreateRequest(url).GetResponseAsync()) {
-				using (var sr = new StreamReader(response.GetResponseStream())) {
-					return JsonConvert.DeserializeObject<PagedResult<Version>>(await sr.ReadToEndAsync());
-				}
-			}
-		}
-
-		public static async Task<Version> GetVersion(string addon_id, int version_id) {
-			string url = $"https://addons.mozilla.org/api/v3/addons/addon/{addon_id}/versions/{version_id}";
-			using (var response = await CreateRequest(url).GetResponseAsync()) {
-				using (var sr = new StreamReader(response.GetResponseStream())) {
-					return JsonConvert.DeserializeObject<Version>(await sr.ReadToEndAsync());
-				}
-			}
 		}
 
 		public static async Task<ExtendedFileInfo> GetInformation(AMO.File file) {

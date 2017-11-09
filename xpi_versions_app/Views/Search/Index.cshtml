@@ -1,0 +1,16 @@
+﻿@model xpi_versions_app.AMO.PagedResult<xpi_versions_app.AMO.Addon>
+
+@{
+    ViewData["Title"] = "Search Results";
+}
+
+<h2>Index</h2>
+
+Total: @Model.count
+<br />
+Results:
+@foreach (var addon in Model.results) {
+	<h3><a href="/addon/@addon.id">@addon.name</a></h3>
+	<p>@addon.type</p>
+	<p>@addon.summary</p>
+}

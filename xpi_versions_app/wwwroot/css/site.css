@@ -18,15 +18,27 @@ header {
         margin: 0;
     }
 
-    header span.links {
+    header div.links input:not([type=submit]) {
+        width: calc(100vw - 100px);
+    }
+
+    header h1, header div.links {
+        padding: 10px;
+        padding-top: 0;
+    }
+
+@media (min-width: 768px) {
+    header div.links {
         position: absolute;
         right: 0;
         bottom: 0;
+        text-align: right;
     }
 
-    header h1, header span.links {
-        padding: 10px;
+    header div.links input:not([type=submit]) {
+        width: 300px;
     }
+}
 
 #main {
     margin: 10px;
