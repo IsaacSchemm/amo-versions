@@ -192,7 +192,16 @@ namespace xpi_versions_app.Extended {
 				: "";
 			var file = version.files.Where(f => f.platform == platform).FirstOrDefault()
 				?? version.files.Where(f => f.platform == "all").FirstOrDefault()
-				?? version.files.First();
+				?? version.files.FirstOrDefault()
+				?? new File {
+					// persona
+					id = 0,
+					created = "2000-01-01T00:00Z",
+					is_webextension = true,
+					platform = "all",
+					size = 0,
+					url = "https://www.example.com"
+				};
 			var extendedFileInfo = file.is_webextension
 				? new ExtendedFileInfo {
 					// We already know what these fields will be

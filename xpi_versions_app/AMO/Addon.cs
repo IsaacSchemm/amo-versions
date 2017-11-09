@@ -9,5 +9,6 @@ namespace xpi_versions_app.AMO {
 		public string name;
 		public string summary;
 		public string type;
+		public Version current_version;
     }
 }

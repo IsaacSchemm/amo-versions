@@ -1,16 +1,73 @@
-﻿@model xpi_versions_app.AMO.PagedResult<xpi_versions_app.AMO.Addon>
+﻿@using xpi_versions_app.Extended
+@model IEnumerable<FlatVersion>
 
 @{
     ViewData["Title"] = "Search Results";
 }
 
-<h2>Index</h2>
+<h2>Search Results</h2>
 
-Total: @Model.count
-<br />
-Results:
-@foreach (var addon in Model.results) {
-	<h3><a href="/addon/@addon.id">@addon.name</a></h3>
-	<p>@addon.type</p>
-	<p>@addon.summary</p>
+@foreach (var info in Model) {
+	<div class="version" data-bind="css: { app_compatible: app_compatible, convertible: convertible }">
+		<div class="buttons">
+			@if (info.Addon.type == "search") {
+				<a class="install button" href="@info.InstallUrl" data-bind="click: addSearchProvider">
+					Add to @info.AppName
+				</a>
+				<a class="download button" href="@info.DownloadUrl">
+					Download .xml
+				</a>
+			} else {
+				bool app_compatible = info.IsAppCompatible();
+				bool convertible = info.IsConvertible();
+				if (app_compatible) {
+					<a class="install button" href="@info.InstallUrl">
+						Add to @info.AppName
+					</a>
+				}
+				if (convertible) {
+					<a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
+						Convert Add-on
+					</a>
+				}
+				if (!app_compatible && !convertible) {
+					<div class="not-compatible">
+						This add-on is not compatible with your version of @info.AppName.<br />
+						<a href="/addon/@info.Addon.id">
+							View past versions
+						</a>
+					</div>
+				}
+			}
+		</div>
+		<div class="version-main">
+			<div class="version-header">
+				<a href="/addon/@info.Addon.id">@info.Addon.name</a>
+				<span class="tags">
+					@if (!info.ExtendedFileInfo.bootstrapped && !info.File.is_webextension) {
+						<span style="background-color: darkgreen">Restart Required</span>
+					}
+					@if (info.ExtendedFileInfo.bootstrapped && !info.ExtendedFileInfo.jetpack) {
+						<span data-bind="if: bootstrapped && !jetpack" style="background-color: green">Restartless</span>
+					}
+					@if (info.ExtendedFileInfo.jetpack) {
+						<span data-bind="if: jetpack" style="background-color: darkcyan">Jetpack</span>
+					}
+					@if (info.ExtendedFileInfo.has_webextension) {
+						<span data-bind="if: has_webextension" style="background-color: red">WebExtensions</span>
+					}
+				</span>
+			</div>
+			<div class="released">@info.ReleasedStr</div>
+			<div class="compatibility">@string.Join(", ", info.CompatibilityStrs())</div>
+			@if (info.Version.license != null) {
+				<div class="license">
+					<a href="@info.Version.license.url">@info.Version.license.name</a>
+				</div>
+			}
+			<!-- ko if: $root.release_notes_shown -->
+			<div class="release_notes">@Html.Raw(info.Version.release_notes)</div>
+			<!-- /ko -->
+		</div>
+	</div>
 }

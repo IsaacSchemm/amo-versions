@@ -10,7 +10,6 @@ namespace xpi_versions_app.AMO {
 		public bool is_webextension;
 		public string platform;
 		public int size;
-		public string status;
 		public string url;
 	}
 }
