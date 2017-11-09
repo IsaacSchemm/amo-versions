@@ -1,4 +1,5 @@
-﻿using Microsoft.WindowsAzure.Storage.Blob;
+﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Newtonsoft.Json;
 using System.IO;
 using System.IO.Compression;
@@ -44,7 +45,11 @@ namespace xpi_versions_app.Extended {
 			}
 		}
 
-		public static async Task<ExtendedFileInfo> GetInformation(AMO.File file, CloudBlobClient blobClient = null) {
+		public static async Task<ExtendedFileInfo> GetInformation(AMO.File file) {
+			var blobClient = Startup.StorageConnStr == null
+				? null
+				: CloudStorageAccount.Parse(Startup.StorageConnStr).CreateCloudBlobClient();
+
 			if (blobClient != null) {
 				// Get container
 				var container = blobClient.GetContainerReference("extendedfileinfo-v1-addons-mozilla-org");

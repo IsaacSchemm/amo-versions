@@ -8,28 +8,37 @@
 	<div class="version" data-bind="css: { app_compatible: app_compatible, convertible: convertible }">
 		<div class="buttons">
 			@if (info.Addon.type == "search") {
-				<a class="install button" href="#" data-bind="attr: { href: install_url }, click: addSearchProvider">
-					Add to <span data-bind="text: app_name">Firefox</span>
+				<a class="install button" href="@info.InstallUrl" data-bind="click: addSearchProvider">
+					Add to @info.AppName
 				</a>
-				<a class="download button" href="#" data-bind="attr: { href: download_url }">
+				<a class="download button" href="@info.DownloadUrl">
 					Download .xml
 				</a>
 			} else {
-				<a class="install button" href="@info.InstallUrl" data-bind="if: app_compatible">
-					Add to <span data-bind="text: app_name">Firefox</span>
-				</a>
-				<a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
-					Convert Add-on
-				</a>
-				<a class="download button" href="@info.DownloadUrl" data-bind="if: app_compatible() || convertible()">
-					Download .xpi
-				</a>
-				<div class="not-compatible" data-bind="if: !app_compatible() && !convertible()">
-					This add-on is not compatible with your version of <span data-bind="text: app_name">Firefox</span>.<br />
-					<a href="@info.DownloadUrl">
-						Download anyway
+				bool app_compatible = info.IsAppCompatible();
+				bool convertible = true;
+				if (app_compatible) {
+					<a class="install button" href="@info.InstallUrl">
+						Add to @info.AppName
 					</a>
-				</div>
+				}
+				if (convertible) {
+					<a class="convert button" href="#" data-bind="if: convertible, attr: { href: converter_url }">
+						Convert Add-on
+					</a>
+				}
+				if (app_compatible || convertible) {
+					<a class="download button" href="@info.DownloadUrl" data-bind="if: app_compatible() || convertible()">
+						Download .xpi
+					</a>
+				} else {
+					<div class="not-compatible">
+						This add-on is not compatible with your version of @info.AppName.<br />
+						<a href="@info.DownloadUrl">
+							Download anyway
+						</a>
+					</div>
+				}
 			}
 		</div>
 		<div class="version-main">
@@ -51,8 +60,8 @@
 					}
 				</span>
 			</div>
-			<div class="released" data-bind="text: released_display"></div>
-			<div class="compatibility">@string.Join(", ", info.CompatibilityDisplay())</div>
+			<div class="released">@info.ReleasedStr</div>
+			<div class="compatibility">@string.Join(", ", info.CompatibilityStrs())</div>
 			<div class="license">
 				<a href="@info.Version.license.url">@info.Version.license.name</a>
 			</div>

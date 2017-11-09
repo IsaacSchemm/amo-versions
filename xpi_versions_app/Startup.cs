@@ -11,10 +11,13 @@ namespace xpi_versions_app
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+		public static string StorageConnStr { get; private set; }
+
+		public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-        }
+			StorageConnStr = configuration["StorageConnStr"];
+		}
 
         public IConfiguration Configuration { get; }
 
