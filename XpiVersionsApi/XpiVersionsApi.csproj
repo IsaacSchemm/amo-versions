@@ -7,6 +7,7 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Runtime.Caching" />
   </ItemGroup>
   <ItemGroup>

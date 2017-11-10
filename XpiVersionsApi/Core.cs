@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.WindowsAzure.Storage;
+using Newtonsoft.Json;
 using System;
+using System.Configuration;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,8 +12,6 @@ using System.Xml.Serialization;
 
 namespace XpiVersionsApi {
 	public static class Core {
-		private static MemoryCache cache = MemoryCache.Default;
-
 		public static HttpWebRequest CreateRequest(string url) {
 			var request = WebRequest.CreateHttp(url);
 			request.UserAgent = "xpi-versions/1.0 (https://github.com/IsaacSchemm/xpi-versions)";
@@ -29,7 +29,23 @@ namespace XpiVersionsApi {
 		}
 
 		public static async Task<ExtendedFileInfo> GetInformation(AmoFile file) {
-			if (cache[$"ExtendedFileInfo:{file.id}"] is ExtendedFileInfo cached) return cached;
+			string connectionString = ConfigurationManager.AppSettings["AzureWebJobsStorage"];
+			var blobClient = string.IsNullOrEmpty(connectionString)
+				? null
+				: CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient();
+
+			if (blobClient != null) {
+				// Get container
+				var container = blobClient.GetContainerReference("extendedfileinfo-v1-addons-mozilla-org");
+				await container.CreateIfNotExistsAsync();
+
+				// Get blob
+				var blockBlob = container.GetBlockBlobReference($"a{file.id}.json");
+				if (await blockBlob.ExistsAsync()) {
+					string json = await blockBlob.DownloadTextAsync();
+					return JsonConvert.DeserializeObject<ExtendedFileInfo>(json);
+				}
+			}
 
 			var obj = new ExtendedFileInfo {
 				id = file.id
@@ -82,11 +98,15 @@ namespace XpiVersionsApi {
 				}
 			}
 
-			try {
-				cache.Add($"ExtendedFileInfo:{file.id}", obj, new CacheItemPolicy {
-					Priority = CacheItemPriority.Default
-				});
-			} catch (NullReferenceException) { }
+			if (blobClient != null) {
+				// Get container
+				var container = blobClient.GetContainerReference("extendedfileinfo-v1-addons-mozilla-org");
+				await container.CreateIfNotExistsAsync();
+
+				// Get blob
+				var blockBlob = container.GetBlockBlobReference($"a{file.id}.json");
+				await blockBlob.UploadTextAsync(JsonConvert.SerializeObject(obj));
+			}
 
 			return obj;
 		}
