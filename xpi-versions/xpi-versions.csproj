@@ -58,11 +58,14 @@
   <ItemGroup>
     <Content Include="app.css" />
     <Content Include="index.html" />
+    <Content Include="search.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="app.ts" />
     <TypeScriptCompile Include="knockout.d.ts" />
+    <TypeScriptCompile Include="search.ts" />
+    <TypeScriptCompile Include="shared.ts" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />

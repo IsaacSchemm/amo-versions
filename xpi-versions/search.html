@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Version History</title>
+    <link rel="stylesheet" href="app.css" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/url-search-params/0.10.0/url-search-params.js" integrity="sha256-Tj0IK7neOvGa1FUIZ433DRvlP/Kv0ffbyyrgQOhdOro=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/2.0.3/fetch.min.js" integrity="sha256-aB35laj7IZhLTx58xw/Gm1EKOoJJKZt6RY+bH1ReHxs=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.2/knockout-min.js" integrity="sha256-owX7sroiO/O1a7h3a4X29A1g3QgqdNvijRQ7V5TH45M=" crossorigin="anonymous"></script>
+    <script src="shared.js"></script>
+    <script src="search.js"></script>
+</head>
+<body>
+    <header>
+        <h1>xpi-versions</h1>
+        <span class="links">
+            <a href="search.html">Search</a>
+            &middot;
+            <a href="https://github.com/IsaacSchemm/xpi-versions">View on GitHub</a>
+        </span>
+    </header>
+
+    <div id="main">
+        <h2>
+            Search
+        </h2>
+
+        <form method="get" id="search-form">
+            <div style="display: flex; flex-direction: row; margin: 10px 0;">
+                <input type="search" name="q" data-bind="value: q" style="flex: 1 0 auto;" />
+                <select name="host" data-bind="value: host" style="margin-left: 0.5em;">
+                    <option>addons.mozilla.org</option>
+                    <option>addons-dev.allizom.org</option>
+                    <option>addons.thunderbird.net</option>
+                </select>
+            </div>
+            
+            <div style="display: flex; flex-direction: row; margin: 10px 0;">
+                <label>
+                    Type:
+                    <select name="type" data-bind="value: type">
+                        <option value="theme">Complete Themes</option>
+                        <option value="dictionary">Dictionaries</option>
+                        <option value="extension">Extensions</option>
+                        <option value="language">Language Packs</option>
+                        <option value="persona">Lightweight Themes</option>
+                        <option value="search">Search Engines</option>
+                    </select>
+                </label>
+                <label style="margin-left: 0.5em;">
+                    Sort by:
+                    <select name="sort" data-bind="value: sort">
+                        <option value="created">Created</option>
+                        <option value="users">Daily users</option>
+                        <option value="hotness">Hotness</option>
+                        <option value="updated">Last updated</option>
+                        <option value="rating">Rating</option>
+                        <option value="relevance">Relevance</option>
+                        <option value="downloads">Weekly downloads</option>
+                    </select>
+                </label>
+                <label style="margin-left: 0.5em;">
+                    Application:
+                    <select name="app" data-bind="value: app">
+                        <option value="">Any</option>
+                        <option value="seamonkey">SeaMonkey</option>
+                        <option value="thunderbird">Thunderbird</option>
+                        <option value="firefox">Firefox</option>
+                    </select>
+                </label>
+                <div style="flex: 1 0 auto;"></div>
+                <input type="submit" value="Search" />
+            </div>
+        </form>
+
+        <!-- ko foreach: addons -->
+        <div class="version" data-bind="css: { app_compatible: app_compatible, convertible: convertible }">
+            <img align="left"
+                 width="64"
+                 height="64"
+                 style="margin-right: 0.5em"
+                 data-bind="attr: { src: addon.icon_url }" />
+            <div class="version-main">
+                <div class="version-header">
+                    <a href="#" data-bind="attr: { href: 'index.html?id=' + addon.id + '&host=' + encodeURIComponent($parent.host()) }, text: addon.name"></a>
+                    <span class="tags">
+                        <span data-bind="if: file.is_restart_required" style="background-color: darkgreen">Restart Required</span>
+                        <span data-bind="if: file.is_webextension" style="background-color: red">WebExtensions</span>
+                    </span>
+                </div>
+                <div class="released" data-bind="text: released_display"></div>
+                <div class="compatibility" data-bind="text: compatibility_display"></div>
+                <div class="license" data-bind="with: version.license">
+                    <a href="#" data-bind="attr: { href: url }, text: name"></a>
+                </div>
+                <div class="release_notes" data-bind="html: addon.summary"></div>
+            </div>
+        </div>
+        <!-- /ko -->
+    </div>
+
+    <footer>
+        <a href="#" class="button prev" data-bind="if: prev_page_url, attr: { href: prev_page_url }, click: prev">Previous</a>
+        <a href="#" class="button next" data-bind="if: next_page_url, attr: { href: next_page_url }, click: next">Next</a>
+    </footer>
+</body>
+</html>
